@@ -1,0 +1,116 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>4.2. Simple Tx/Rx</title>
+<metadata>
+  <md:content-id>m21594</md:content-id><md:title>4.2. Simple Tx/Rx</md:title>
+  <md:abstract/>
+  <md:uuid>7f4fc02f-9b8b-4bb2-8f0b-d74c4c147d3c</md:uuid>
+</metadata>
+
+<content>
+
+
+<note id="eip-163">This first example involves two boards which stay in Rx mode
+by default. When you press a button on either one, it sends a
+message and toggles its green LED; the board which receives
+the message toggles its red LED. Once this is functional, you
+will play with the Rx/Tx frequency.</note><section id="eip-686"><title>Running the Code</title><list id="eip-id19898740"><item>Copy the code presented below <footnote id="eip-id1164253752196">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_simple</code>.</footnote>.</item>
+<item>Compile and download the code onto both boards <emphasis effect="italics">(Ctrl+D)</emphasis>.</item>
+<item>Switch both boards on (one with the battery unit, the other with the USB slot of your PC); when you press one's button, the other's red LED should toggle.</item>
+</list><code id="eip-48" display="block">#include "mrfi.h"
+#include "radios/family1/mrfi_spi.h"
+int main(void)
+{
+  BSP_Init();
+  P1REN |= 0x04;
+  P1IE |= 0x04;
+  MRFI_Init();
+  MRFI_WakeUp();
+  MRFI_RxOn();
+  __bis_SR_register(GIE+LPM4_bits);
+}
+void MRFI_RxCompleteISR()
+{
+  P1OUT ^= 0x02;
+}
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1 (void)
+{
+  P1IFG &amp;= ~0x04;
+  mrfiPacket_t packet;
+  packet.frame[0]=8+20;
+  MRFI_Transmit(&amp;packet, MRFI_TX_TYPE_FORCED);
+  P1OUT ^= 0x01;
+}<caption>The simplest Tx/Rx example possible</caption></code><para id="eip-904">The packet format is:</para><table id="eip-7" summary="packet.frame">
+<tgroup cols="4"><tbody>
+  <row>
+<entry>Length (1B)</entry>
+<entry>Source (4B)</entry>
+<entry>Destination (4B)</entry>
+<entry>Payload (Length-8 bytes long)</entry>
+  </row>
+</tbody>
+</tgroup><caption>packet.frame</caption>
+</table><table id="eip-111" summary="packet.rxMetrics">
+<tgroup cols="3"><tbody>
+  <row>
+<entry>RSSI (1B)</entry>
+<entry>CRC (1b)</entry>
+<entry>LQI (1b)</entry>
+  </row>
+</tbody>
+</tgroup><caption>packet.rxMetrics</caption>
+</table><para id="fs-id7392008">A variable of type <code>mrfiPacket_t</code> is a structure containing two parts:
+<list id="eip-id23540959">
+<item>
+<code>packet.frame</code> is the frame to be transmitted. The first byte is the <code>Length</code>
+of the payload together with source and destination Address. With the current
+driver implementation, addresses are coded on 4 bytes, and the maximum
+Payload length is 20 bytes. By default, the CC2500 does not perform address
+filtering, so in practice we will not care about the values of the address fields.
+</item><item>
+<code>packet.rxMetrics</code> are statistics on the last received packet, i.e. it only
+makes sense on received packet. The first byte is the Received Signal Strength
+Indicator (<emphasis>RSSI</emphasis>) at sync word detection. This is the signal level in dBm. The
+next bit indicates whether the Cyclic Redundancy Check (<emphasis>CRC</emphasis>) was successful
+(by default, the CC2500 is configured to reject packets with unsuccessful CRC
+check, so in practice this field will always be 1). The last 7 bits are the Link Quality
+Indicator (<emphasis>LQI</emphasis>). The LQI gives an estimate of how easily a received signal
+can be demodulated by accumulating the magnitude of the error between ideal
+constellations and the received signal over the 64 symbols immediately following
+the sync word.
+</item>
+</list></para><para id="eip-233">Some keys for understanding the code:
+<list id="eip-id17189092"><item><emphasis>Line 4</emphasis> is a function from the drivers (right-click on it, and choose <code>Go to
+definition of "BSP_Init()"</code> if you want to know) which disables the
+watchdog, initializes the MCLK at 8MHz, sets LED ports as outputs and the
+button port as input. Note that it does neither enables the internal resistor of the
+button, nor enables interrupts. This is done on lines 5 and 6.</item>
+<item><emphasis>Line 7.</emphasis> MRFI stands for Minimal Radio-Frequency Interface; functions starting
+with MRFI are used to drive the CC2500 radio chip. <code>MRFI_Init()</code> initializes the 6 wires between the MSP430 and the CC2500, powers-up the CC2500 and configures the CC2500 47 registers and turns on interrupts from the CC2500;</item>
+<item><emphasis>Line 8</emphasis> wakes up the radio, i.e. it turns on the 26MHz crystal attach to it without
+entering Rx or Tx mode;</item>
+<item><emphasis>Line 9</emphasis> switches the radio to Rx mode; from this line on, it can receive packets,
+in which case the interrupt function <code>MRFI_RxCompleteISR</code> is called <footnote id="eip-id1170463969140">Note that the real interrupt function with the usual <code>#pragma</code> declaration is hidden in
+the drivers </footnote>.</item>
+</list></para></section><section id="eip-382"><title>Choosing a Frequency</title><para id="eip-718">The CC2500 can transmit at any frequency on the <emphasis>ISM</emphasis> band <emphasis>2400.0-2483.5 MHz</emphasis>.
+The chip divides the 2400.0-2483.5 MHz spectrum into <emphasis>channels</emphasis> separated by a
+tunable <emphasis>channel spacing</emphasis>. By default, channel spacing is 200kHz; with default
+configuration, channel 0 is 2433.0Mhz, channel 1 is 2433.2Mhz, and so forth. The
+channel is configured through the <code>CHANNR</code> register of the CC2500.
+<list id="eip-id18116238"><item>add 1 the following line at the very top of the code. This way, you have access to low level driver
+functions which enable you to write directly the CC2500 registers:
+<code id="eip-id9518747" display="block">#include "radios/family1/mrfi_spi.h"</code>
+</item>
+<item>add the following line right after <code>MRFI_Init();</code>. You may replace <code>0x10</code> by the frequency you have chosen. This programs the <code>CHANNR</code> register of the CC2500. Be aware that values
+above <code>0xFC</code> are prohibited because the corresponding frequency is above 2483.5
+MHz:
+<code id="eip-id20605947" display="block">mrfiSpiWriteReg(CHANNR,0x10);</code>
+</item>
+</list></para><para id="eip-274">When you have reprogrammed both boards, you should be able to communicate
+without interference.</para></section>
+
+
+</content>
+
+</document>

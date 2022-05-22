@@ -1,0 +1,30 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>6.3. Timing issues: length of the preamble</title>
+<metadata>
+  <md:content-id>m21604</md:content-id><md:title>6.3. Timing issues: length of the preamble</md:title>
+  <md:abstract/>
+  <md:uuid>7a03f5eb-a8fe-4f9d-a5de-199f1d3e265a</md:uuid>
+</metadata>
+
+<content>
+<list id="fs-id4037318"><item>
+Use the oscilloscope to visualize the energy consumed by a board, you can clearly see the periodic wakeup of the CC2500 (see figure below, lower part).
+<figure id="current_ps">
+  <media id="current_ps2" alt="current_ps">
+    <image mime-type="image/jpeg" src="../../media/current_ps.jpg"/>
+  </media>
+  <caption>
+Energy consumed by the transmitter and the receiver in preamble sampling. To
+function, the length of the preamble needs to be larger than the check interval CI.
+  </caption>
+</figure>
+
+</item><item>
+You can see that the time between two successive wake-ups is <code>CI=104ms</code>. Push the button and capture the energy consumed when the board is in transmit mode (see figure, upper part). You can see the series on 50 microframes sent.
+</item><item>
+By zooming in, you can see that one micro-frame is sent every <code>Dcca=3.24ms</code>. Hence, the length of the whole preamble is <code>50*3.24=162ms</code>, which is larger that the check interval.
+</item></list>
+</content>
+
+</document>

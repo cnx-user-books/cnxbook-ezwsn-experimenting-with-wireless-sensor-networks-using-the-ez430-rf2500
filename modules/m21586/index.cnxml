@@ -1,0 +1,80 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>3.1. A Steady LED</title>
+<metadata>
+  <md:content-id>m21586</md:content-id><md:title>3.1. A Steady LED</md:title>
+  <md:abstract/>
+  <md:uuid>cf2d56b2-54ac-4b68-a4b7-51f131f722d3</md:uuid>
+</metadata>
+
+<content>
+  <section id="eip-722"><title>Creating a Project in IAR</title><para id="eip-798">If you want to create your own project in IAR, you need to repeat these steps:
+<list id="eip-id11766221">
+<item>Connect the eZ430-RF2500 programming board to the computer and open IAR;</item>
+<item>Choose <code>Create new project in current workspace</code>;</item>
+<item>Leave Tool Chain to MSP430; as project template, choose <code>C &gt; main</code>; click <code>OK</code>;</item>
+<item>Create a directory on your desktop in which you save your project;</item>
+<item>Go to <code>Project &gt; Option</code> <emphasis effect="italics">(Alt+F7)</emphasis>, in General Option, choose <code>Device=MSP430F2274</code>; in Debugger, choose <code>Driver=FET Debugger</code>.</item>
+</list>
+For your convenience, you can download the entire <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link> for the labs in this collection, organized in IAR projects. Open <code>source_code/iar_v4.11.lab_ezwsn.eww</code> and browse through the different projects in the <code>Workspace</code> panel on the left.</para></section><section id="eip-392"><title>Running the Code</title><para id="eip-140">
+<list id="eip-id8349521"><item>Copy the following code into IAR <footnote id="eip-id3252612">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>led_steady</code>.</footnote>.</item>
+<item>Compile and download the code onto the board <emphasis effect="italics">(Ctrl+D)</emphasis>.</item>
+<item>Let the code execute <emphasis effect="italics">(F5)</emphasis>, you should now see both LEDs on.</item>
+</list>
+</para><code id="eip-46" display="block">#include "io430.h"
+int main( void )
+{
+  WDTCTL = WDTPW + WDTHOLD;
+  P1DIR |= 0x03;
+  P1OUT |= 0x03;
+  while(1);
+}<caption>Switching on both LEDs</caption></code><para id="eip-326">Some keys for understanding the code:
+<list id="eip-id6870910">
+<item><emphasis>Line 1</emphasis>: <code>io430.h</code> contains all the macros used for translating human readable
+values (e.g. <code>P1DIR</code>) into actual memory location. Right click on <code>io430.h</code> and
+choose <code>Open "io430.h"</code> to see its content.</item>
+<item><emphasis>Line 4</emphasis>: The MSP430 has a watchdog timer which resets the board if it is not reset
+before it elapses. This way, if you code hangs, the board restarts and continues
+functioning. For our simple examples, we disactivate this function by writing the
+correct values into register <code>WDTCTL</code>.</item>
+<item><emphasis>Line 5</emphasis> declares <code>P1.0</code> and <code>P1.1</code> as output pins. This is done by turning bits 0 and
+1 to 1 in register <code>P1DIR</code>;</item>
+<item><emphasis>Line 6</emphasis> sets the output state of pins <code>P1.0</code> and <code>P1.1</code> to logic 1 (physically somewhere
+between 2.2V an 3.5V). This causes the LEDs, connected to those pins, to
+light.</item>
+<item><emphasis>Line 7</emphasis> loops, leaving the board running.</item>
+</list></para></section><section id="eip-821"><title>Energy Consumption</title><para id="eip-10">
+<list id="eip-id1165707513804">
+<item>Comment out line 6 and run the board from the battery unit. Use the resistor
+jumper and the oscilloscope to read out the default energy consumption (i.e.
+MSP430 running, no LEDs, no CC2500);</item>
+<item>Repeat this by leaving line 6. By subtracting the results, you can measure the
+energy consumption of the LEDs;</item>
+<item>replace line 6 by <code>P1OUT |= 0x01</code> and <code>P1OUT |= 0x02</code> will leave on the
+red and green LEDs only, respectively. You can now measure the consumption
+of the LEDs independently.</item>
+</list>
+</para><para id="eip-882">Make sure you obtain results close to the ones presented in the following table.</para><table id="eip-994" summary="Current consumed by the LEDs">
+<tgroup cols="2"><tbody>
+  <row>
+    <entry>no lEDs (MSP430 running)</entry>
+    <entry>3.12mA</entry>
+  </row>
+  <row>
+    <entry>red+green LED</entry>
+    <entry>9.12-3.12=6.00mA</entry>
+  </row>
+  <row>
+    <entry>red LED</entry>
+    <entry>7.04-3.12=3.92mA</entry>
+  </row>
+  <row>
+    <entry>green LED</entry>
+    <entry>5.20-3.12=2.08mA</entry>
+  </row>
+</tbody>
+</tgroup><caption>Current consumed by the LEDs</caption>
+</table></section>
+</content>
+
+</document>

@@ -1,0 +1,118 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>Installation Instructions</title>
+<metadata>
+  <md:content-id>m21597</md:content-id><md:title>Installation Instructions</md:title>
+  <md:abstract/>
+  <md:uuid>d7ff16da-be82-41f1-b339-fe3f0c42b23d</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-199">This document details the software which needs to be installed on the host computer before taking the tutorial. Depending on the Labs you want to take, you only need to install a subset of the 5 tools described below.</note><section id="eip-495"><title>IAR Kickstart</title><note id="eip-711" type="aside">This is required for all labs.</note><para id="eip-549">IAR is the tool used to program the eZ430-RF2500 boards. The free Kickstart version is limited to compiling 4kB of code.
+<list id="eip-id19505827"><item>
+Download from <link url="http://focus.ti.com/docs/toolsw/folders/print/iar-kickstart.html" window="new">http://focus.ti.com/docs/toolsw/folders/print/iar-kickstart.html</link>.
+</item><item>
+Install with default parameters.
+</item>
+</list></para></section><section id="eip-461"><title>TI Sensor Monitor Demo</title><note id="eip-94" type="aside">This is required for all labs because it installs the drivers enabling your computer to talk to the mote.</note><para id="eip-682">Sensor Monitor is demo software which provides a graphical interface to the Texas Instruments Sensor Monitor Demo.
+<list id="eip-id1165700684433"><item>
+Download from <link url="http://www.ti.com/litv/zip/slac139b" window="new">http://www.ti.com/litv/zip/slac139b</link>.
+</item><item>
+Follow default installation for Demo Visualizer, Sensor Monitor Installer.exe
+</item><item>
+Store the eZ430-RF2500 Wireless Sensor Monitor IAR Source v1.02 directory on your computer.
+</item>
+</list></para></section><section id="eip-254"><title>PuTTY</title><note id="eip-681" type="aside">This is required for all labs.</note><para id="eip-id9566471">
+PuTTY is used to read from the serial COM port created by the eZ430-RF2500
+board when connected to the host computer.
+<list id="eip-id9748916"><item>Create folder <code>C:/Program Files/putty/</code>
+</item><item>
+Download <link url="http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe" window="new">http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe</link> into that folder.
+</item>
+</list>
+</para></section><section id="eip-142"><title>Xming</title><note id="eip-667" type="aside">This is only used in <link url="m21598">Lab 5</link>.</note><para id="eip-id1165703410859">Xming is a Linux-like X server which enables cygwin script to display windows.
+<list id="eip-id16184257"><item>
+Download from <link url="http://www.straightrunning.com/XmingNotes/" window="new">http://www.straightrunning.com/XmingNotes/</link>.
+</item><item>Follow default install, but choose not to install any SSH client.
+</item>
+</list></para></section><section id="eip-4"><title>Cygwin</title><note id="eip-92" type="aside">This is only used in <link url="m21598">Lab 5</link>.</note><para id="eip-id17020107">
+Cygwin is a Linux-in-Windows environment, enabling Linux-like script execu-
+tion on a Windows machine.
+<list id="eip-id17020109"><item>
+Install from <link url="http://www.cygwin.com/setup.exe" window="new">http://www.cygwin.com/setup.exe</link>.
+</item><item>
+Follow default installation. When asked for a Download Site, choose <code>http://www.gtlib.gatech.edu</code> <footnote id="gatech">This is a must as GATech's download site contains the python-numpy package
+we will need.</footnote>.
+</item><item>
+When packages are listed, click on the button in the upper right corner until obtaining Full. You obtain a list of all installable packages (much like programs in Windows), marked with the word Skip when not installed, or the version number when installed.
+</item><item>
+Using that list, add the following packages. This is done by clicking on the
+work Skip next to the package name.
+
+<list id="eip-id1164792056416"><item>
+<emphasis>python</emphasis>: An interactive object-oriented scripting language
+</item><item>
+<emphasis>python-numpy</emphasis>: Python scientific computing module
+</item><item>
+<emphasis>gcc-g++</emphasis>: C++ compiler
+</item><item>
+<emphasis>gnuplot</emphasis>: A command-line driven interactive function plotting utility
+</item>
+</list>
+</item>
+<item>
+Click next several times to finish the installation.
+</item></list>
+</para><para id="eip-47">The Python gnuplot extension enables us to visualize data output by the mote
+connected to the computer. To install it:
+
+<list id="eip-id1164818103986"><item>
+Open cygwin
+</item><item>
+download <link url="http://superb-west.dl.sourceforge.net/sourceforge/gnuplot-py/gnuplot-py-1.8.zip">gnuplot-py-1.8.zip</link>
+</item><item>
+unzip that file and place folder <code>gnuplot-py-1.8/</code> within inside folder <code>C:/cygwin/</code>
+</item><item>
+open cygwin
+</item><item>
+type the following lines
+<list id="eip-id1172426834574">
+<item><code>cd /cygdrive/c/cygwin/</code></item>
+<item><code>python setup.py install</code></item>
+</list>
+</item><item>
+open <code>C:/cygwin/lib/python2.5/site-packages/Gnuplot/gp_cygwin.py</code> with WordPad
+</item><item>
+change line
+<code id="eip-id1164837791164" display="block">default term = 'windows'</code>
+to
+<code id="eip-id1164852371853" display="block">default term = 'x11'</code>
+</item><item>
+change line
+<code id="eip-id8011674" display="block">gnuplot command = 'pgnuplot.exe'</code>
+to
+<code id="eip-id1164843342453" display="block">gnuplot command = 'gnuplot.exe'</code>
+</item>
+</list></para></section><section id="eip-569"><title>Start Menu Shortcuts</title><note id="eip-561" type="aside">While not strictly necessary, creating Start Menu shortcuts will make your life
+easier.</note><list id="eip-id19468114"><item>Create a folder <code>ezwsn</code> in the Start Menu folder (typically <code>C:/Documents
+and Settings/All Users/Start Menu/</code>)
+</item><item>
+in that folder, create shortcuts to the following programs:
+<list id="eip-id19619388"><item>
+PuTTY
+</item><item>
+IAR Embedded Workbench
+</item><item>
+XLaunch <emphasis effect="italics">
+(part of Xming)</emphasis>
+</item><item>
+cygwin
+</item><item>
+eZ430-RF2500 Sensor Monitor
+</item>
+</list>
+</item>
+</list></section>
+</content>
+
+</document>

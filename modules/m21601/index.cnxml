@@ -1,0 +1,151 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>5.4. Channel Success Probability</title>
+<metadata>
+  <md:content-id>m21601</md:content-id><md:title>5.4. Channel Success Probability</md:title>
+  <md:abstract/>
+  <md:uuid>9d7df10b-3cb5-48fa-814e-1c61478bcb1a</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-722">You have seen that the strength of a link can not be easily
+predicted as a function of the distance between sender and
+receiver, especially indoors. You will now discover the relationship
+between the RSSI of a link and its probability. We
+define link probability as the portion of the messages sent by the sender which
+are successfully received at the receiver. You will see that link probability is
+strongly correlated to the RSSI.</note>
+
+<para id="fs-id43839124">The experimental setup goes as follows. You will use to boards, a sender and a receiver. The sender continuously sends bursts of 100 messages, each containing
+a counter which increases from 1 to 100. Out of those 100 sent messages, the receiver may only receive 40. It will count the number of received messages until the counter reaches 100, or until the counter loops back to a smaller value. When this happens, the receiver outputs the number of received messages, i.e. the probability of the link.
+</para>
+
+<para id="fs-id45314050">
+At the same time as the receiver counts the number of the received messages, it
+calculates the average RSSI over those 100 messages, which it outputs together
+with the link probability. Finally, to allow for the receiver to output these statistics
+(which takes some time), after each burst of 100 messages, the sender sends 20
+messages with counter set to 101.
+</para>
+
+<para id="fs-id43634205">
+To implement this:
+<list id="fs-id45436397"><item>
+Reprogram two boards with the code taken from the listing below <footnote id="eip-id1172275428164">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_probability</code>.</footnote>.
+</item><item>
+Attach one board to the host computer, and read the output from COMx using PuTTY;
+</item><item>
+Power the second board from the battery unit and press the button; this will cause that board to transmit the bursts of 100 messages. You can read the statistics using PuTTY.
+</item><item>
+Reprogram the sender node by changing line <code>P1IFG &amp;= ~0x04;</code> by <code>P1IFG |= 0x04;</code>. This causes a continuous stream of messages. Power the newly programmed node on the battery pack and press the button; the red LED flashes.
+</item><item>
+On the receiver side, verify with PuTTY that you are receiving continuously. Close PuTTY.
+</item><item>
+Open Cygwin, and enter <code>cat /dev/comx &gt; probability.txt</code>. This logs the output in a file.
+</item><item>
+Walk away with either node to record data for low RSSI values. Press <emphasis effect="italics">(Ctrl+C)</emphasis> in Cygwin to stop the logging process.
+</item><item>
+Start <code>XLaunch</code>. In Cygwin, type <code>export DISPLAY=127.0.0.1:0.0</code>.
+</item><item>
+In Cygwin, enter <code>gnuplot</code>, then <code>plot "probability.txt" using 1:2</code>. This plots the probability as a function of the RSSI, make sure to obtain a graph similar to the one in the figure below.
+</item></list>
+</para>
+
+<code id="eip-808" display="block">#include "mrfi.h"
+uint8_t counter, num_received, bool_counting;
+int16_t cumulative_rssi;
+mrfiPacket_t packet;
+void print_probability(int16_t cumulative_rssi, uint8_t number)
+{
+  char output[] = {" 000 0.00\n"};
+  if (cumulative_rssi&lt;0) {
+    output[0]='-';
+    cumulative_rssi=-cumulative_rssi;
+  }
+  output[1] = '0'+((cumulative_rssi/100)%10);
+  output[2] = '0'+((cumulative_rssi/10)%10);
+  output[3] = '0'+ (cumulative_rssi%10);
+  output[5] = '0'+((number/100)%10);
+  output[7] = '0'+((number/10)%10);
+  output[8] = '0'+ (number%10);
+  TXString(output, (sizeof output)-1);
+}
+int main(void)
+{
+  BSP_Init();
+  P1REN |= 0x04;
+  P1IE  |= 0x04;
+  MRFI_Init();
+  P3SEL    |= 0x30;
+  UCA0CTL1  = UCSSEL_2;
+  UCA0BR0   = 0x41;
+  UCA0BR1   = 0x3;
+  UCA0MCTL  = UCBRS_2;                     
+  UCA0CTL1 &amp;= ~UCSWRST;
+  MRFI_WakeUp();
+  MRFI_RxOn();
+  __bis_SR_register(GIE+LPM4_bits);
+}
+void MRFI_RxCompleteISR()
+{
+  P1OUT ^= 0x02;
+  MRFI_Receive(&amp;packet);
+  counter = packet.frame[9];
+  if (counter==101) {
+    if (bool_counting == 1) {
+      print_probability(cumulative_rssi/num_received,num_received);
+    }
+    bool_counting=0;
+    num_received=0;
+    cumulative_rssi=0;
+  } else {
+    bool_counting=1;
+    num_received++;
+    cumulative_rssi+=Mrfi_CalculateRssi(packet.rxMetrics[0]);
+  }
+}
+#pragma vector=PORT1_VECTOR
+__interrupt void interrupt_button (void)
+{
+  P1IFG &amp;= ~0x04;
+  P1OUT ^= 0x01;
+  mrfiPacket_t packet;
+  packet.frame[0]=8+3;
+  for (counter=1;counter&lt;101;counter++){
+     packet.frame[9]=counter;
+     MRFI_Transmit(&amp;packet, MRFI_TX_TYPE_FORCED);
+  }
+  for (counter=0;counter&lt;20;counter++){
+     packet.frame[9]=101;
+     MRFI_Transmit(&amp;packet, MRFI_TX_TYPE_FORCED);
+  }
+}</code><para id="fs-id43600141">
+Some keys to understand the code:
+<list id="fs-id43717372"><item>
+<emphasis>Line 55.</emphasis> When the button is pressed, the board continuously sends bursts of 100 messages followed by 20 "guard" messages.
+</item><item>
+<emphasis>Line 61.</emphasis> The format of a packet is presented in <link document="m21594">4.2. Simple Tx/Rx</link>. <code>packet.frame[0]</code> is the length field, which sets the payload length at 3 bytes (minimum accepted value).
+</item><item>
+<emphasis>Line 63.</emphasis> <code>packet.frame[9]</code> is the first byte of the payload.
+</item><item>
+<emphasis>Line 43.</emphasis> <code>bool_counting</code> indicates whether the statistics have already been printed out (without this semaphore, as there are 20 guard messages, the statistics would be printed out 20 times)
+</item></list>
+</para>
+
+<para id="fs-id43857054">
+As shown in hte figure below, link probability is closely correlated to RSSI. The theory tells
+us that, at very low RSSI, link probability is very close to 0; at very high RSSI it is
+close to 1. Between those extremes, there is a linear slope, shown as an overlay in
+the figure below.
+<figure id="success_vs_rssi">
+  <media id="success_vs_rssi2" alt="success_vs_rssi">
+    <image mime-type="image/jpeg" src="../../media/success_vs_rssi.jpg"/>
+  </media>
+  <caption>
+
+  </caption>
+</figure>
+</para>
+
+</content>
+</document>

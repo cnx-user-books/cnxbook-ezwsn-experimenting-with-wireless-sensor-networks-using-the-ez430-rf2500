@@ -1,0 +1,95 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>3.4. Timer-Driven Toggle Through Timer Interrupts</title>
+<metadata>
+  <md:content-id>m21589</md:content-id><md:title>3.4. Timer-Driven Toggle Through Timer Interrupts</md:title>
+  <md:abstract/>
+  <md:uuid>28bdfe7b-e14c-446f-9afa-e6c7a2392183</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-639">We will explore a energy-efficient way of measuring time by
+using timers. A timer is a register which counts up to a certain
+number at each clock tick. During this, the MSP430 can
+switch to a low-power mode. Each time the timer threshold is
+reached, a timer interrupt wakes the MSP430, which toggles the two LEDs.</note><section id="eip-608"><title>Running the Code</title><para id="eip-51">
+<list id="eip-id6958240"><item>Copy the code presented below <footnote id="eip-id1164247065584">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>led_timer</code>.</footnote>.</item>
+<item>Compile and download the code onto the board <emphasis effect="italics">(Ctrl+D)</emphasis>.</item>
+<item>Let the code execute <emphasis effect="italics">(F5)</emphasis>, both LEDs should blink.</item>
+</list>
+</para><code id="eip-266" display="block">#include "io430.h"
+#include "in430.h"
+int main( void )
+{
+  WDTCTL = WDTPW + WDTHOLD;
+  P1DIR |=  0x03;
+  BCSCTL3 |= LFXT1S_2;
+  TACCTL0 = CCIE;
+  TACCR0 = 1000;
+  TACTL = MC_1+TASSEL_1;
+  __bis_SR_register(GIE+LPM3_bits);
+}
+#pragma vector=TIMERA0_VECTOR
+__interrupt void Timer_A (void)
+{
+  P1OUT ^= 0x03;
+}<caption>Blink LEDs using timer interrupts</caption></code><para id="eip-822">Some keys for understanding the code:
+<list id="eip-id14936151">
+<item>
+<emphasis>Line 7</emphasis> switches on the ACLK by sourcing it to the <emphasis>VLO</emphasis>, a very low power crystal
+oscillator inside the MSP430, different from the more accurate and energy hungry
+<emphasis>DCO</emphasis> (Digitally Controlled Oscillator). The DCO drives the MCLK and
+the VLO the ACLK. ACLK is used for the timer; MCLK for executing code.
+When there is no code to be executed (i.e. when waiting for interrupts), a low power
+mode (in which DCO is switched off) can be used.
+</item><item><emphasis>Line 8</emphasis> enables interrupts for <code>Timer_A</code>.
+</item><item><emphasis>Line 9</emphasis> sets the value up to which <code>Timer_A</code> will count.
+</item><item><emphasis>Line 10</emphasis> tells <code>Timer_A</code> to count up (<code>MC_1</code>) each time ACLK ticks (<code>TASSEL_1</code>).
+</item><item><emphasis>Line 11</emphasis> enables interrupts globally and enters LPM3. Note that LPM3 leave
+only ACLK running, which is exactly what we need because our <code>Time_A</code> runs
+off ACLK.
+</item>
+</list></para></section><section id="eip-369"><title>Measuring Time</title><para id="eip-68">
+We use extension pin <code>P6</code> to measure time exactly. Therefore:
+<list id="eip-id8029211">
+<item>
+add line <code>P2DIR |= 0x08;</code> after line 6 to declare <code>P2.3</code> as output;
+</item><item>add line <code>P2OUT ^= 0x08;</code> after line 16 to toggle <code>P2.3</code> after toggling the
+LEDs;
+</item><item>connect a probe of your oscilloscope to extension port <code>P6</code>, ground on extension
+port <code>P1</code>. Power on the board, you're now able to read the duration between two
+toggles.
+</item><item>reprogram your board with <code>TACCR0</code> values between 1000 and 30000; verify that
+the times obtained are close to the following:
+</item>
+</list>
+</para><table id="eip-780" summary="Duration when using timers">
+<tgroup cols="2"><tbody>
+  <row>
+    <entry>TACCR0 value</entry>
+    <entry>measured toggle duration</entry>
+  </row>
+  <row>
+    <entry>500</entry>
+    <entry>47.40ms</entry>
+  </row>
+  <row>
+    <entry>1000</entry>
+    <entry>95.00ms</entry>
+  </row>
+  <row>
+    <entry>10000</entry>
+    <entry>950.0ms</entry>
+  </row>
+  <row>
+    <entry>20000</entry>
+    <entry>1890ms</entry>
+  </row>
+</tbody>
+</tgroup><caption>Duration when using timers</caption>
+</table><para id="eip-338">This table informs you that 1000 ACLK cycles take 95.00ms, one ACLK cycle thus
+takes 95μs, the VLO on the MSP430 thus runs at 10.5kHz. In theory, the VLO runs at 12kHz; the exact value depends on the voltage of the batteries
+and on the temperature.</para></section>
+</content>
+
+</document>

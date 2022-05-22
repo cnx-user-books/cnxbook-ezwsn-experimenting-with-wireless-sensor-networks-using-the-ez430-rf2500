@@ -1,0 +1,65 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>5.3. RSSI vs. Distance</title>
+<metadata>
+  <md:content-id>m21600</md:content-id><md:title>5.3. RSSI vs. Distance</md:title>
+  <md:abstract/>
+  <md:uuid>32892353-2290-4a54-a02b-81ed82fe546b</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-319">You will draw the RSSI received as a function of distance between sender and receiver. Because of the random nature of propagation, especially in a closed room, you will see that this relationship is not straightforword to predict. It should be clear that repeating these measurements under different conditions yields very different results.</note><note id="eip-50" type="important">For this section, you will need to have installed all the software. If not, please follow the <link document="m21597">Installation Instructions</link>.</note><para id="delete_me">You will modify the code for the mote taken from <link document="m21599">5.2. Creating a Spectrum Analyzer to Measure Noise</link> in order to read 200
+times the RSSI value <emphasis effect="italics">from the same channel</emphasis>. A python script will then average
+those read values. To this end:
+<list id="eip-id1164798671805"><item>
+Use the code from <link document="m21599">5.2. Creating a Spectrum Analyzer to Measure Noise</link>, but comment out line <code>mrfiSpiWriteReg(CHANNR,channel);</code>. The mote will now
+read the RSSI 200 times on channel 0.
+</item><item>Reprogram the receiver board and visualize the values outputted on the COMx
+port using PuTTY (see <link document="m21582">1.3. Read directly from COM Port</link>). We are interested in calculating the average
+value of each 200 point line.
+</item><item>Copy-paste the code presented below to a new file called <code>txrx_rssi_dist.py</code> <footnote id="eip-id2568950">Alternatively, this file is already present in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>, in the directory <code>source_code/c_files/</code>.</footnote>;
+</item><item>in Cygwin, run the python script
+<code>cat /dev/comx | ./txrx_rssi_dist.py</code> <footnote id="eip-id1167041377156">In Cygwin, you should first go to the folder containing <code>txrx_rssi_dist.py</code>, see <link document="m21599">5.2. Creating a Spectrum Analyzer to Measure Noise</link>.</footnote>. This script outputs the average value of the RSSI 200 readings.
+</item><item>Reprogram a second board using the code described in <link document="m21595">4.3. Continuous Tx/Rx</link>, so that it
+continuously sends data, on channel 0 and with a transmission power of 0dBm.
+</item><item>Start the continuous sending and see how the RSSI decreases as the transmitter
+is moved away from the receiver.
+</item>
+</list></para><code id="eip-441" display="block">#!/usr/bin/env python
+import sys
+if __name__ == '__main__':
+    char = ''
+    line = ''
+    while 1:
+	char = sys.stdin.read(1)
+        if char == '\n':
+	    sline = line.split()
+	    sumsum = 0
+	    counter = 0
+	    for i in range(len(sline)):
+		try:
+			sline[i] = int(sline[i])
+			sumsum += sline[i]
+			counter += 1
+		except:
+			sline[i] = 0
+	    result = sumsum/counter
+	    print result
+	    line = ''
+        else:
+	    line = line + char</code><para id="eip-822">The figure below plots the evolution of RSSI as transmitter and receiver boards are parted
+away in three different directions. Because these measurements are not done in an
+infinite open space, shadowing and fading effects introduce randomness into the
+relationship between RSSI and distance.
+
+<figure id="rssi_vs_dist">
+  <media id="rssi_vs_dist2" alt="rssi_vs_dist">
+    <image mime-type="image/jpeg" src="../../media/rssi_vs_dist.jpg"/>
+  </media>
+  <caption>
+Evolution of RSSI with distance.
+  </caption>
+</figure></para><note id="eip-818" type="important">RSSI can not be predicted knowing the distance. This means that you can not know for sure two nodes are able to communicate by just the distance to one another. Similarly, distance can not be predicted knowing the RSSI.</note>
+</content>
+
+</document>

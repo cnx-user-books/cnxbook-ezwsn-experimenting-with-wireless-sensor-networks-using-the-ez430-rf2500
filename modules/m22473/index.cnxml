@@ -1,0 +1,32 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>7.1. Communication Stack</title>
+<metadata>
+  <md:content-id>m22473</md:content-id><md:title>7.1. Communication Stack</md:title>
+  <md:abstract/>
+  <md:uuid>ef91cde3-abbe-47c6-8e1d-55c7c2ca41b7</md:uuid>
+</metadata>
+
+<content>
+<note id="eip-520" type="important">The source code is too long to be put on this web page. You will have to <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">download</link> it. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_wsn</code>.</note><para id="fs-id1169781344502">
+Project <code>txrx_wsn</code> is a complete WSN example which implements a complete communication stack for WSNs, using gradient multi-hop routing. A gradient routing protocol assigns a scalar value to each node, which we call its <emphasis effect="italics">height</emphasis>. Heights are assigned in such a way that they increase with distance to a central node. Distance is calculated using a cumulative cost function based here on hop count. The forwarding process selects the next hop as the neighbor which offers the largest gradient, i.e.the neighbor with lowest height.
+</para><para id="fs-id6064816">
+In the implemented protocol stack, the application layer generates sensed data to be sent to a sink node, by using on-board Analog-to-Digital Conversion. The routing layer is responsible for updating the node's <code>myHeight</code>; the MAC layer performs on-demand neighbor discovery and uses preamble sampling for energy-efficiency.
+</para><para id="fs-id6660326">
+The execution timeline of the implemented protocol is presented in the figure below, for an example topology of 3 nodes. By default, nodes perform preamble sampling. When a node wants to send a message (here <code>A</code>), it starts by sending a preamble as long as the check interval (<code>CI</code>) to make sure all neighbors hear that preamble. For efficient handling by a packet radio, the preamble is cut into a series of micro-frames <code>UF</code>, each containing a counter indicating the number of <code>UF</code> still to come. Upon hearing a <code>UF</code>, a receiving node turns its radio off and sets a timer to switch into receive mode after the last <code>UF</code>. At that moment, the sender indicates the duration of the neighbor announcement window to follow in a <code>CW</code> packet.
+</para>
+<figure id="fs-id8361220">
+  <media id="dogpic" alt="A dog sitting on a bed">
+    <image mime-type="image/jpeg" src="../../media/timeline.jpg"/>
+  </media>
+  <caption>
+     Timeline illustrating the execution of the protocol stack. The x-axis represents time; a box above the line indicates that the radio is transmitting; a gray/white box under the axes means that the radio in receiving/idle listening, resp.; no box means the radio is turned off.
+  </caption>
+</figure>
+<para id="fs-id1169779953565">
+Receivers choose a random backoff for sending an <code>ACK</code> message inside the neighbor announcement window and sleep the rest of the time; the sender listens for the complete announcement window and populates the initially empty neighbor table as it receives <code>ACK</code> messages.
+</para><para id="fs-id1169779669410">
+After the neighbor announcement window, the sender updates its <code>myHeight</code> by the minimum value of its neighbors', incremented by one, and select its neighbor with smallest <code>Height</code>. It inserts this information into the <code>DATA</code> packet header which it transmits. The destination node receives the whole packet while the non-destination neighbor switches to sleep after the header. The destination replies with a final acknowledgment <code>FIN</code>; all nodes resume preamble sampling.
+</para>
+</content>
+</document>

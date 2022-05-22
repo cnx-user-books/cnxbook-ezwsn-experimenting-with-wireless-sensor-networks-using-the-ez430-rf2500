@@ -1,0 +1,42 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>Prerequisites &amp; Timeline</title>
+<metadata>
+  <md:content-id>m21579</md:content-id><md:title>Prerequisites &amp; Timeline</md:title>
+  <md:abstract/>
+  <md:uuid>5fddf516-10d4-4578-8630-79cc8d09da72</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-308" type="important">Basic rules apply when using the eZ430-RF2500 boards:
+<list id="eip-id13259132"><item>beware of static electricity, don't touch the components directly;</item>
+<item>never disconnect a target board from the USB programmer if still plugged
+into the computer;</item>
+<item>never disconnect a target board from the battery unit with jumper on (two
+leftmost pictures);</item>
+<item><emphasis>connect as shown on the two rightmost pictures, otherwise you destroy the board !</emphasis></item></list>
+
+
+<figure id="connecting_the_ez430">
+  <media id="connecting_the_ez4302" alt="">
+    <image mime-type="image/jpeg" src="../../media/connecting_the_ez430.jpg"/>
+  </media>
+</figure>
+
+
+</note><para id="delete_me"><!-- Insert module text here -->
+  For this tutorial, you need:</para><list id="eip-30"><item>an MSP430 eZ430-RF2500 Development Tool kit, i.e. two target boards, a USB
+programmer and a battery unit <footnote id="TI-price">This set of 2 motes is manufactured and sold by Texas Instruments for $49</footnote>;</item>
+<item>a computer running Windows, with a free USB port;</item>
+<item>the following freeware (available online): IAR Quick Start, SmartRF studio, PuTTY, eZ430-RF2500 Sensor Monitor Demo, cygwin (with packets GNUplot
+and sys), Xming for Windows <footnote id="install">If this software is not installed, refer to the <link document="m21597">Installation Instructions</link></footnote>;</item>
+<item>ideally, an oscilloscope like the Tektronix TDS 210 with a 1Ohm resistor mounted in an open jumper.</item></list><para id="eip-746">This tutorial is meant to be completed within 8 hours (one full day or two half days):</para><list id="eip-246"><item>Lab 1. <link document="m21580">Discover the development environment, run a basic demo</link> (hour 1).</item>
+<item>Lab 2. <link document="m21583">Discover the eZ430-RF2500 board and its components</link>  (hour 2).</item>
+<item>Lab 3. <link document="m21586">Simple examples for the MSP430</link> (hours 3-4).</item>
+<item>Lab 4. <link document="m21590">Simple examples for the CC2500</link> (hour 5).</item>
+<item>Lab 5. <link document="m21598">RF measurements</link> (hours 6-7).</item>
+<item>Lab 6. <link document="m21602">Implementing a preamble sampling MAC protocol</link> (hour 8).</item>
+<item>Lab 7. <link document="m22473">Running a Complete Wireless Sensor Network</link> (hour 8).</item></list><note id="eip-663" type="note"><title>Thanks!</title>This Lab was made possible by <link url="http://robotics.eecs.berkeley.edu/~pister/">Prof. Kristofer S.J. Pister</link> from UC Berkeley, and by the generous support of <link url="http://www.ti.com/">Texas Instruments</link>. The author would also like to thank the students for their constructive feedback, as well as Ferenc Kovak, Kevin Mulligan and Winthrop Williams for their logistic support.</note>
+</content>
+
+</document>

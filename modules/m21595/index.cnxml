@@ -1,0 +1,95 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>4.3. Continuous Tx/Rx</title>
+<metadata>
+  <md:content-id>m21595</md:content-id><md:title>4.3. Continuous Tx/Rx</md:title>
+  <md:abstract/>
+  <md:uuid>edb26f6b-499b-4074-9518-91c3e4a105ac</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-332">We abandon the push button, and ask one board to sent messages
+continuously, while the other receives. Once this constant
+flow of data is established, you will be able to see the
+energy consumption of the transmitting and receiving boards,
+for a number of settings of transmission power.</note><section id="eip-139"><title>Running the Code</title><list id="eip-id1169465686137"><item>
+Start from the code used in <link document="m21594">4.2. Simple Tx/Rx</link>.
+</item><item>
+Replace line <code>P1IFG &amp;= ~0x04;</code> by <code>P1IFG |= 0x04;</code>. This means that once you push the button, the board will start sending an infinite number of messages. This is because you force the interrupt flag to remain active, i.e. when your code leave the Interrupt Service Routine, it immediately re-enters because, according to the interrupt flag, there is still and interrupt pending.
+</item><item>
+Reprogram both boards, switch them on, and push one button.
+</item>
+</list></section><section id="eip-337"><title>Energy Consumption</title><list id="eip-id1164802093744"><item>You may wish to command out lines <code>P1OUT ^= 0x02;</code> and <code>P1OUT ^= 0x01;</code> so that your LEDs remain off not to measure their energy consumption;
+</item><item>Use the oscilloscope to measure the energy consumption;
+</item><item>Make sure you obtain results which are close to the following figures.
+</item></list><para id="eip-69"><figure id="txrx">
+  <media id="txrx2" alt="txrx">
+    <image mime-type="image/jpeg" src="../../media/txrx.jpg"/>
+  </media>
+  <caption>
+Energy consumption with continuous Tx/Rx.
+  </caption>
+</figure></para><note id="eip-34" type="important">As you can see, the radio accounts for most of the energy consumed by the mote. Additionally, as a rule of thumb you may safely consider that transmitting, receiving and idle listening cost about the same energy.</note></section><section id="eip-883"><title>Impact of Transmission Power</title><para id="eip-116">
+We want to measure the impact of the transmission power on the current consumption
+of the board. Therefore:
+</para>
+
+<list id="eip-id7618287"><item>
+if not there yet, add the following line at the beginning of your file:
+<code id="eip-id21335509" display="block">#include "radios/family1/mrfi_spi.h"</code>
+</item><item>
+right after line <code>MRFI_Init();</code>, add <code id="eip-id19882886" display="block">mrfiSpiWriteReg(PATABLE,0xFF);</code>. This programs the <code>PATABLE</code> register of the CC2500, which is responsible for the transmission power of the radio. You can
+put any value between <code>0x00</code> and <code>0xFF;</code>, which is then mapped to a transmission power as shown in the next table.
+</item><item>
+Use your oscilloscope to visualize the maximum energy consumed. Repeat this for different values of <code>PATABLE</code>. Check that you have results close to the ones presented in the next figure.
+</item>
+</list><table id="eip-519" summary="Impact of transmission power on current">
+<tgroup cols="3"><tbody>
+  <row>
+    <entry>register</entry>
+    <entry>power</entry>
+    <entry>current</entry>
+  </row>
+  <row>
+    <entry>0x84</entry>
+    <entry>-24dBm</entry>
+    <entry>16.1mA</entry>
+  </row>
+  <row>
+    <entry>0x55</entry>
+    <entry>-16dBm</entry>
+    <entry>16.5mA</entry>
+  </row>
+  <row>
+    <entry>0x97</entry>
+    <entry>-10dBm</entry>
+    <entry>18.3mA</entry>
+  </row>
+  <row>
+    <entry>0xA9</entry>
+    <entry>-4dBm</entry>
+    <entry>22.6mA</entry>
+  </row>
+  <row>
+    <entry>0xFE</entry>
+    <entry>0dBm</entry>
+    <entry>27.6mA</entry>
+  </row>
+  <row>
+    <entry>0xFF</entry>
+    <entry>1dBm</entry>
+    <entry>27.9mA</entry>
+  </row>
+</tbody>
+</tgroup><caption>Impact of transmission power on current</caption>
+</table><para id="eip-486"><figure id="power">
+  <media id="power2" alt="power">
+    <image mime-type="image/jpeg" src="../../media/power.jpg"/>
+  </media>
+  <caption>
+Impact of transmission power on current
+  </caption>
+</figure></para><note id="eip-918" type="important">Varying the transmission power from -20dBm to 0dBm (i.e. 200 times more power) only doubles the motes current consumption. This is because the electronics account for the largest amount of energy: at 0dBm, 1mW is sent over the antenna, while the mote consumes 27.6mA*3V=82.8mW.</note></section>
+</content>
+
+</document>

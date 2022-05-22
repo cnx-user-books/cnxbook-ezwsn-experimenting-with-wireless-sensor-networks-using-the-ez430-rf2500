@@ -1,0 +1,142 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>5.2. Creating a Spectrum Analyzer to Measure Noise</title>
+<metadata>
+  <md:content-id>m21599</md:content-id><md:title>5.2. Creating a Spectrum Analyzer to Measure Noise</md:title>
+  <md:abstract/>
+  <md:uuid>0ddad3cd-eb55-46cb-a1bb-2130c4f829b2</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-271">The CC2500 can easily change its operating frequency,
+through the use of channels. For each of these channels, the
+CC2500 can sense the level of electro-magnetic noise, in
+dBm. The goal of this section is to build a spectrum analyzer
+by continuously plotting noise vs. frequency. We therefore use a Python script
+running on the host computer.</note><note id="eip-419" type="important">For this section, you will need to have installed all the software. If not, please follow the <link document="m21597">Installation Instructions</link>.</note><section id="eip-285"><title>Running the Code</title><list id="eip-id3166606"><item>
+Copy-paste the code presented below into IAR <footnote id="eip-id2877092">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_noise</code>.</footnote>, and program a single board; close IAR.
+</item><item>Copy-paste the python code below into a new file called <code>txrx_noise.py</code> in some directory on your computer <footnote id="eip-id3026727">Alternatively, this file is already present in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>, in the directory <code>source_code/c_files/</code>.</footnote>.
+</item><item>Connect your USB programmer board to the host computer, and find the COM<emphasis effect="italics">x</emphasis> port it is connected
+to. Use PuTTY to read from that <emphasis effect="italics">x</emphasis> port; you
+should see a continuous series of 200 numbers appearing.
+</item><item>Start an X server onto the host computer using <code>Xlaunch</code> you have installed on your computer.
+</item><item>Start <code>Cygwin</code> and go into the folder containing <code>./txrx_noise.py</code> using command <code>cd <emphasis effect="italics">path to your folder</emphasis></code> <footnote id="eip-id1165791572038">In cygwin, your Windows drive C:\ is called <code>/cygdrive/c</code>. Also, use forward slashes. If your folder is located at <code>C:\Users\Thomas\Desktop\source_code</code>, in Cygwin, type <code>cd /c/cygdrive/Users/Thomas/Desktop/source_code</code>.</footnote>.
+</item><item>type <code>export DISPLAY=127.0.0.1:0.0</code>
+</item><item>type <code>cat /dev/com<emphasis effect="italics">x</emphasis></code>. You should see the same content appearing as when using PuTTY. If not, read the COM<emphasis effect="italics">x</emphasis>port with PuTTY and try again.
+</item><item>type <code>cat /dev/com<emphasis effect="italics">x</emphasis> | ./txrx_noise.py</code>
+A window appears which looks like the one depicted below.
+</item>
+</list><code id="eip-385" display="block">#include "mrfi.h"
+#include "radios/family1/mrfi_spi.h"
+void print_rssi(int8_t rssi)
+{
+  char output[] = {" 000 "};
+  if (rssi&lt;0) {output[0]='-';rssi=-rssi;}
+  output[1] = '0'+((rssi/100)%10);
+  output[2] = '0'+((rssi/10)%10);
+  output[3] = '0'+ (rssi%10);
+  TXString(output, (sizeof output)-1);
+}
+int main(void)
+{
+  int8_t rssi;
+  uint8_t channel;
+  BSP_Init();
+  MRFI_Init();
+  P3SEL    |= 0x30;
+  UCA0CTL1  = UCSSEL_2;
+  UCA0BR0   = 0x41;
+  UCA0BR1   = 0x3;
+  UCA0MCTL  = UCBRS_2;                     
+  UCA0CTL1 &amp;= ~UCSWRST;
+  MRFI_WakeUp();
+  __bis_SR_register(GIE);
+  while(1) {
+    for (channel=0;channel&lt;200;channel++) {
+      MRFI_RxIdle();
+      mrfiSpiWriteReg(CHANNR,channel);
+      MRFI_RxOn();
+      rssi=MRFI_Rssi();
+      print_rssi(rssi);
+    }
+    TXString("\n",1);
+  }
+}
+void MRFI_RxCompleteISR()
+{
+}
+<caption>C code</caption></code><code id="eip-484" display="block">#!/usr/bin/env python
+import re, Gnuplot, sys
+if __name__ == '__main__':
+    print 'display started...'
+    g = Gnuplot.Gnuplot(debug=1)
+    g('set term x11 title "eZWSN sprectum analyzer"')
+    g('set yrange [-110:0]')
+    g('set data style linespoints')
+    g.xlabel('frequency (MHz)')
+    g.ylabel('RSSI (dBm)')
+    char = ''
+    line = ''
+    while 1:
+	char = sys.stdin.read(1)
+        if char == '\n':
+	    sline = line.split()
+	    data = []
+	    for i in range(len(sline)):
+		try:
+			sline[i] = int(sline[i])
+		except:
+			sline[i] = 0
+		frequency = 2433.0+(0.2*i)
+                data.append([frequency,sline[i]])
+	    g.plot(data)
+	    line = ''
+        else:
+	    line = line + char<caption>Python code</caption></code><para id="eip-981"><figure id="spectrum_analyzer">
+  <media id="spectrum_analyzer2" alt="spectrum_analyzer">
+    <image mime-type="image/jpeg" src="../../media/spectrum_analyzer.jpg"/>
+  </media>
+  <caption>
+Output of the spectrum analyzer in Section 6.2; one transmission is going on on
+channel 0.
+  </caption>
+</figure>
+</para><para id="eip-418">Some keys for understanding the code running on the mote:
+<list id="eip-id21189090"><item>
+<emphasis>Line 6.</emphasis> <code>print_rssi()</code> is a function which prints the RSSI value read from
+the CC2500 onto the serial port which is initialized between lines 18 and 25. <code>TXString()</code> is a function provided in <code>bsp_board.c</code>.
+</item><item>
+<emphasis>Lines 18-25</emphasis> initialize the serial port, which enable your code to output lines
+of text using the <code>TXString()</code> function. These lines can then be read using
+PuTTY.
+</item><item>
+<emphasis>Line 27</emphasis> instructs the MSP430 to stay in active mode all the time, i.e. not to enter
+any low power mode.
+</item><item>
+<emphasis>Lines 28-37</emphasis> is a loop which continuously scans through channels 0-200, recording
+and outputting the RSSI value. <code>MRFI_Rssi()</code> is a function declared in the
+drivers.
+</item></list></para><para id="eip-592">The python script continuously feeds the GNUplot environment with data received
+from the standard interface. Note that the content of the right COMx port if piped
+to this python script.</para></section><section id="eip-381"><title>Refresh Rate of the Spectrum Analyzer</title><list id="eip-id45729351"><item>
+in the code, after line <code>BSP_Init();</code>, add line <code>P2DIR |= 0x08;</code>
+</item><item>
+in the code, after line <code>TXString("\n",1);</code>, add line <code>P2DIR ^= 0x08;</code>. This toggles extension port <code>P6</code> every time the screen gets refreshed.
+</item><item>using the oscilloscope, measure on extension port <code>P6</code> the refresh rate of the frequency
+analyzer. Make sure to refresh rate is around 1.1s.
+</item><item>move line <code>P2DIR ^= 0x08;</code> right after line <code>print_rssi(rssi);</code>. You now measure the time it takes for
+the mote to sample the noise level on one channel, and move to the other.
+</item><item>Make sure you measure a value close to 5.5ms.
+</item>
+</list></section><section id="eip-235"><title>Testing the Spectrum Analyzer</title><list id="eip-id1165453598198"><item>
+Reprogram a second board using the code described in <link document="m21595">4.3. Continuous Tx/Rx</link>, so that it continuously
+sends data. Start the continuous sending and visualize this transmission
+on the spectrum analyzer (at channel 0 by default).
+</item><item>Using the technique described in <link document="m21594">4.2. Simple Tx/Rx</link>, change the operating channel, and see the implications on
+the spectrum analyzer.
+</item><item>You can also see the impact of a running microwave oven.
+</item>
+</list><note id="eip-608" type="important">When you bring the transmitting mode close to the receiver, you see on the spectrum analyzer that the signal 'leaks' over multiple channels. This is why a standard such as <cite url="http://ieeexplore.ieee.org/xpl/standardstoc.jsp?isnumber=35824">IEEE802.15.4</cite> specifies the channel spacing to be 5MHz. We have set the spacing to a much lower value (200kHz) on purpose to see the effect of adjacent channel leakage. In practice, you should use frequencies which are far away from each other.</note></section>
+</content>
+
+</document>

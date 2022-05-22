@@ -1,0 +1,79 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>5.1. The importance of CRC</title>
+<metadata>
+  <md:content-id>m21598</md:content-id><md:title>5.1. The importance of CRC</md:title>
+  <md:abstract/>
+  <md:uuid>7cd34560-c961-4d8c-83e5-bd7219d04707</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-525">Each packet is appended with a 16-bit Cyclic-Redundancy-
+Check (<emphasis>CRC</emphasis>) which is used to detect accidental alterations of data during
+transmission. CRC is computed over the data portion of
+the frame. Upon receiving a packet, the CC2500 recomputes a
+CRC over the received data and compares that values with the received CRC. A
+mismatch indicates a corrupted packet; by default, the CC2500 silently drops
+such a packet. You will disable CRC and see how often corrupted packets occur.</note><section id="eip-404"><title>Running the Code</title><list id="eip-id40073353"><item>
+Copy code presented below <footnote id="eip-id11090562">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_crc</code>.</footnote>.
+</item><item>Compile and download the code onto both boards <emphasis effect="italics">(Ctrl+D)</emphasis>.
+</item><item>Connect one board to a computer using the USB programmer, and read its output
+using PuTTY.
+</item><item>Power the other with the battery packet and press the button. You should read
+'abcdefghijklmnopqrstu' on PuTTY.
+</item><item>Repeat his multiple times by moving away the sending node; you should see
+some alterations to the output text. If CRC was enabled, these packet would have
+been dropped by the CC2500 and you wouldn't see them on the screen.
+</item><item>You may wish to speed things up by changing <code>P1IFG &amp;= ~0x04;</code> to <code>P1IFG |= 0x04;</code> on the sender's side
+so one press of the button generates an infinite stream of packets. Similarly, you
+may wish to reduce its transmission power as explained in <link document="m21595">4.3. Continuous Tx/Rx</link>.
+</item></list><code id="eip-104" display="block">#include "radios/family1/mrfi_spi.h"
+#include "mrfi.h"
+mrfiPacket_t packetToSend;
+int main(void)
+{
+  BSP_Init();
+  P1REN |= 0x04;
+  P1IE |= 0x04;
+  MRFI_Init();
+  mrfiSpiWriteReg(PATABLE,0xBB);
+  mrfiSpiWriteReg(PKTCTRL0,0x41);
+  P3SEL    |= 0x30;
+  UCA0CTL1  = UCSSEL_2;
+  UCA0BR0   = 0x41;
+  UCA0BR1   = 0x3;
+  UCA0MCTL  = UCBRS_2;                     
+  UCA0CTL1 &amp;= ~UCSWRST;
+  MRFI_WakeUp();
+  MRFI_RxOn();
+  __bis_SR_register(GIE+LPM4_bits);
+}
+void MRFI_RxCompleteISR()
+{
+  uint8_t i;
+  P1OUT ^= 0x02;
+  mrfiPacket_t packet;
+  MRFI_Receive(&amp;packet);
+  char output[] = {"                         \r\n"};
+  for (i=9;i&lt;packet.frame[0];i++) {
+    output[i-9]=packet.frame[i];
+  }
+  TXString(output, (sizeof output));
+}
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1 (void)
+{
+  P1IFG &amp;= ~0x04;
+  char character = 'a';
+  uint8_t index;
+  mrfiPacket_t packet;
+  for (index=9;index&lt;30;index++) {
+    packet.frame[index]=character++;
+  }
+  packet.frame[0]=++index;
+  MRFI_Transmit(&amp;packet, MRFI_TX_TYPE_FORCED);
+  P1OUT ^= 0x01;
+}</code></section>
+</content>
+
+</document>

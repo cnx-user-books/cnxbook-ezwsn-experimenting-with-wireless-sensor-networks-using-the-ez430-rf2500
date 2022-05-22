@@ -1,0 +1,50 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>2.3. The eZ430-RF2500 Board</title>
+<metadata>
+  <md:content-id>m21585</md:content-id><md:title>2.3. The eZ430-RF2500 Board</md:title>
+  <md:abstract/>
+  <md:uuid>f5b50d96-2c27-4e19-b316-0242c561a998</md:uuid>
+</metadata>
+
+<content>
+  <section id="eip-940"><title>Overview</title><para id="eip-715">
+The following figure shows the different components on the eZ430-RF2500. In particular, some
+of pins of the MSP430 are exported as <emphasis>extension pins</emphasis> <code>P1</code> through <code>P18</code>. Note that
+some of these pins may be unused pins of the MSP430, others are already used, but
+duplicated as extension ports for debugging purposes.
+<figure id="ez430_board">
+  <media id="ez430_board2" alt="ez430_board">
+    <image mime-type="image/jpeg" src="../../media/ez430_board.jpg"/>
+  </media>
+  <caption>
+The components of the eZ430-RF2500.
+  </caption>
+</figure>
+
+</para></section><section id="eip-937"><title>Interconnecting the MSP430 with the CC2500</title><para id="eip-623">
+As show in the following figure, <emphasis>6 wires</emphasis> interconnect the <emphasis>MSP430</emphasis> (micro-controller) with the <emphasis>CC2500</emphasis> (radio). 4 of them
+form the <emphasis>SPI</emphasis> link, a serial link which enables digital communication. There is a
+hardware SPI modem on each side of the link, the configuration of which is handled
+by the drivers.
+<figure id="ez430_interconnection">
+  <media id="ez430_interconnection2" alt="ez430_interconnection">
+    <image mime-type="image/jpeg" src="../../media/ez430_interconnection.jpg"/>
+  </media>
+  <caption>
+MSP430 and CC2500 are interconnected by an SPI 4-wire link (plain) and two
+interrupt lines (dotted).
+  </caption>
+</figure>
+</para><para id="eip-445">The remaining two links are wires used by the CC2500 to wake-up the MSP430.
+That is, the MSP430 configures its ports <code>P2.6</code> and <code>P2.7</code> as input, with interrupts. It
+then configures the CC2500 to trigger <code>GDO0</code> or <code>GDO2</code> on a given event (typically,
+when receiving a packet). This enables the MSP430 to enter LPM3. Note that these
+wires are also routed to extension port pins <code>P13</code> and <code>P14</code>. The drivers are used in
+such a way that only <code>GDO0</code> is used for proper operation. You can thus configure
+<code>GDO2</code> as you wish, and monitor its state with an oscilloscope on extension port pin <code>P14</code>.</para><para id="eip-921">Refer to the <link url="focus.ti.com.cn/cn/lit/ug/slau227d/slau227d.pdf" window="new">eZ430-RF2500 Development Tool User's Guide</link> for details about the eZ430-RF2500 platform.</para></section><para id="delete_me">
+     <!-- Insert module text here -->
+  </para>
+</content>
+
+</document>

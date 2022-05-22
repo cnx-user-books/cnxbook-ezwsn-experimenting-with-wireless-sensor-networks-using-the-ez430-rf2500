@@ -1,0 +1,35 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>7.2. Run a Multi-Hop WSN</title>
+<metadata>
+  <md:content-id>m22476</md:content-id><md:title>7.2. Run a Multi-Hop WSN</md:title>
+  <md:abstract/>
+  <md:uuid>a2a6dfae-5c04-4bcf-a5e8-c0d775b51862</md:uuid>
+</metadata>
+
+<content>
+<para id="poipoi1">The source code is contained in project <code>txrx_wsn</code> <footnote id="eip-id1167678138557">This code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_wsn</code>.</footnote>. By default, each node transmits <code>every 5+rand(5)</code> seconds at <code>-16dBm</code>, on channel <code>0</code>. The sink node prints the content of the received packets.
+</para><para id="poipoi2">
+Project <code>txrx_wsn</code> can not be compiled with the free edition of IAR because code size it larger than 4kB. Projects <code>txrx_wsn_node</code> and <code>txrx_wsn_sink</code> contain already compiled binary code for nodes and sink, respectively <footnote id="poipoi3">If you have a full edition of IAR, you can use project <code>txrx_wsn</code> directly. You will need to modify boolean <code>IS_SINK_NODE</code> in source file <code>onehopmac.h</code> to program either nodes or sink.</footnote>.
+</para>
+<list id="poipoi4"><item>
+Program only one board for the whole network using project <code>txrx_wsn_sink</code>, the others using project <code>txrx_wsn_node</code>.
+</item><item>
+Use PuTTY to read from the sink node and switch on the other motes.
+</item><item>
+enter command <code>cat /dev/comx | ./txrx_wsn.py</code> on the computer hosting the sink node. You should see a graph similar to the one below.
+<figure id="cute-dog">
+  <media id="connectivity_graph" alt="connectivity_graph">
+    <image mime-type="image/jpeg" src="../../media/connectivity_graph.jpg"/>
+  </media>
+  <caption>
+     An example outputted graph with 12 nodes. Links interconnect neighbors; colors indicate link quality in dBm.
+  </caption>
+</figure>
+</item><item>
+You may move nodes away from each other to obtain a multi-hop graph.
+</item>
+</list>
+</content>
+
+</document>

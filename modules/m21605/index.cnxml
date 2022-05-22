@@ -1,0 +1,27 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>6.4. Timing issues: first micro-frame heard</title>
+<metadata>
+  <md:content-id>m21605</md:content-id><md:title>6.4. Timing issues: first micro-frame heard</md:title>
+  <md:abstract/>
+  <md:uuid>2eddcf80-57f5-4259-9454-2b30f9e522ce</md:uuid>
+</metadata>
+
+<content>
+<para id="fs-id3731827">
+Because the receiver periodically samples the channel, the micro-frame of a preamble
+it hears first can be any of the 50. You will now visualize which micro-frame is
+heard first. To this end:
+<list id="fs-id4943774"><item>
+move line <code>print_counter(packet.frame[9]);
+</code> up two lines (right after <code>MRFI_Receive(&amp;packet);
+</code>), so that the counter value gets printed for every microframe received;
+</item><item>after reprogramming a board, connect it to the host computer and read its COMx port with PuTTY;
+</item><item>press on the second boards button, you should now read a series of decrementing numbers such as:
+<code id="fs-id5074463" display="block">30 29 28 25 24 23 20 19 18 15 14 13 10 09 08 05 04 03 <footnote id="eip-id1169782554380">The sequence may not be continuous because the board spends some time writing on its serial port, and thus misses a few micro-frames.</footnote></code>
+The first number you read is the first micro-frame received (here 30), which is not necessarily the first one sent (here 50).
+</item></list>
+</para>
+</content>
+
+</document>

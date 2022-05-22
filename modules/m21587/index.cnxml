@@ -1,0 +1,84 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>3.2. Active Waiting Loop</title>
+<metadata>
+  <md:content-id>m21587</md:content-id><md:title>3.2. Active Waiting Loop</md:title>
+  <md:abstract/>
+  <md:uuid>2b7e1362-58c7-4bef-84da-464003fa28de</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-783">This example shows a first way of measuring time.
+<code>__no_operation()</code> instructs the MSP430 to do nothing
+during one cycle; by repeating this many times, time can be
+measured. As this is neither accurate nor energy-efficient, a
+more elegant technique will be shown in <link document="m21589">section 3.4</link>.</note><section id="eip-44"><title>Running the Code</title><para id="eip-520">
+<list id="eip-id17939237"><item>Copy the code presented below <footnote id="eip-id1168673313370">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>led_loop</code>.</footnote>.</item>
+<item>Compile and download the code onto the board <emphasis effect="italics">(Ctrl+D)</emphasis>.</item>
+<item>Let the code execute <emphasis effect="italics">(F5)</emphasis>, both LEDs should blink.</item>
+</list>
+</para><code id="eip-853" display="block">#include "io430.h"
+#include "in430.h"
+int main( void )
+{
+  WDTCTL = WDTPW + WDTHOLD;
+  int i;
+  P1DIR |= 0x03;
+  while (1) {
+    P1OUT ^= 0x03;
+    for (i=0;i&lt;10000;i++) {
+      __no_operation();
+    }
+  }
+}<caption>Blinking LEDs using an active waiting loop</caption></code><para id="eip-587">Some keys for understanding the code:
+<list id="eip-id17899741"><item><emphasis>Line 9</emphasis>: the operator <code>^=</code> causes 1s to become 0s and vice-versa (aka toggling).In case of our LEDs, it causes their on/off state to change;</item>
+<item><emphasis>Line 10</emphasis>: <code>__no_operation();</code> causes the MSP430 to do nothing for one cycle.</item>
+</list></para></section><section id="eip-806"><title>Measuring Time</title><para id="eip-743">We want to measure time precisely with the oscilloscope. This can, in theory, be done by measuring the voltage at the LEDs, but it is hard to hold the probes right. We will therefore use extension pin <code>P6</code> represented in the figure below, which is connected to <code>P2.3</code> on the MSP430.
+<figure id="extension_pins">
+  <media id="extension_pins2" alt="extension_pins">
+    <image mime-type="image/jpeg" src="../../media/extension_pins.jpg"/>
+  </media>
+  <caption>
+The extension pins on the eZ430-RF2500 board. Note that the pins with even number (shown on the right) are located on the edge of the board, and are thus
+accessible more easily.
+  </caption>
+</figure></para><para id="eip-940">We will configure <code>P2.3</code> to be output and toggle its state together with the state of the LEDs. Therefore:
+
+<list id="eip-id8524402"><item>add line <code>P2DIR |= 0x08;</code> after line 7 to declare <code>P2.3</code> as output;
+</item>
+<item>add line <code>P2OUT ^= 0x08;</code> after line 9 to toggle <code>P2.3</code> after toggling the LEDs;
+</item>
+<item>connect a probe of your oscilloscope to extension port <code>P6</code>, ground on extension
+port <code>P12</code>;
+</item>
+<item>power on the board, you're now able to read the duration between two toggles;
+</item>
+<item>reprogram your board with waiting values between 1000 and 30000; verify that the times obtained are close to the ones presented the following table.</item>
+</list></para><table id="eip-760" summary="Duration when using an active waiting loop">
+<tgroup cols="2"><tbody>
+  <row>
+    <entry>threshold value for <code>i</code></entry>
+    <entry>measured toggle duration</entry>
+  </row>
+  <row>
+    <entry>1000</entry>
+    <entry>6.72ms</entry>
+  </row>
+  <row>
+    <entry>10000</entry>
+    <entry>67.2ms</entry>
+  </row>
+  <row>
+    <entry>20000</entry>
+    <entry>134.0ms</entry>
+  </row>
+  <row>
+    <entry>30000</entry>
+    <entry>201.0ms</entry>
+  </row>
+</tbody>
+</tgroup><caption>Duration when using an active waiting loop</caption>
+</table></section>
+</content>
+
+</document>

@@ -1,0 +1,95 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>4.4. Wireless Chat</title>
+<metadata>
+  <md:content-id>m21596</md:content-id><md:title>4.4. Wireless Chat</md:title>
+  <md:abstract/>
+  <md:uuid>52c9e49b-0bf0-467c-a011-c8257971c785</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-552">Now that you can send packets between nodes, you will put
+content into those packets. Data is entered through the keyboard
+and sent over the air when pressing enter. The receiver
+prints the received data on the screen. You are thus building a wireless chat program.</note><note id="eip-743" type="important">Because you want to type to and read from both motes, you need to have two USB programmers.</note><section id="eip-166"><title>Running the Code</title><list id="eip-id17902544"><item>
+Copy the code presented below <footnote id="eip-id1168673001736">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>txrx_chat</code>.</footnote>.
+</item><item>
+Compile and download the code onto both boards <emphasis effect="italics">(Ctrl+D)</emphasis>.
+</item><item>Connect each board to a computer using the USB programmer and open PuTTY. Type something and hit enter, the message should appear on the other side's screen.
+</item>
+</list><code id="eip-742" display="block">#include "radios/family1/mrfi_spi.h"
+#include "mrfi.h"
+uint8_t index_output = 9;
+mrfiPacket_t packetToSend;
+int main(void)
+{
+  BSP_Init();
+  MRFI_Init();
+  P3SEL    |= 0x30;     // P3.4,5 = USCI_A0 TXD/RXD
+  UCA0CTL1  = UCSSEL_2; // SMCLK
+  UCA0BR0   = 0x41;     // 9600 from 8Mhz
+  UCA0BR1   = 0x3;
+  UCA0MCTL  = UCBRS_2;                     
+  UCA0CTL1 &amp;= ~UCSWRST; // Initialize USCI state machine
+  IE2      |= UCA0RXIE; // Enable USCI_A0 RX interrupt
+  MRFI_WakeUp();
+  MRFI_RxOn();
+  index_output=0;
+  __bis_SR_register(GIE+LPM4_bits);
+}
+void MRFI_RxCompleteISR()
+{
+  uint8_t i;
+  P1OUT ^= 0x02;
+  mrfiPacket_t packet;
+  MRFI_Receive(&amp;packet);
+  char output[] = {"                   "};
+  for (i=9;i&lt;29;i++) {
+    output[i-9]=packet.frame[i];
+    if (packet.frame[i]=='\r') {
+      output[i-9]='\n';
+      output[i-8]='\r';
+    }
+  }
+  TXString(output, (sizeof output));
+}
+#pragma vector=USCIAB0RX_VECTOR
+__interrupt void USCI0RX_ISR(void)
+{
+  char rx = UCA0RXBUF;
+  uint8_t i;
+  packetToSend.frame[index_output]=rx;
+  index_output++;
+  if (rx=='\r' || index_output==29) {
+     packetToSend.frame[0]=28;
+     MRFI_Transmit(&amp;packetToSend, MRFI_TX_TYPE_FORCED);
+     index_output = 9;
+     for(i=9;i&lt;29;i++) {
+       packetToSend.frame[i]=' ';
+     }
+     P1OUT ^= 0x01;
+  }
+  P1OUT ^= 0x02;
+  TXString(&amp;rx, 1);
+}</code><para id="eip-503">Some keys for understanding the code:
+<list id="eip-id1169460092761">
+<item>
+Lines 9-15 configure the UART module used to communicate over the serial
+port. In particular, line 17 enables interrupts for incoming traffic, i.e. when you
+write onto PuTTY.
+</item><item>
+Lines 21-36. Function MRFI_RxCompleteISR is called when a packet is received.
+The red LED is switched on (Line 26), and an empty output string is
+modified with the received characters before being sent.
+</item><item>
+Lines 37-55. Function USCI0RX_ISR is called when you enter a character on
+PuTTY. This 8-bit character is stored at the right byte in the outgoing packet
+(line 45). When you hit enter or you have type 29 consecutive characters (44),
+the frame is sent and the output buffer is initialized for subsequent text.
+</item>
+</list></para><note id="eip-236" type="important">If you have multiple motes and multiple computers, all messages typed on one computer will appear on all screen. To reduce the broadcast group, you may wish to switch to another frequency channel using the code described in <link document="m21594">4.2. Simple Tx/Rx</link>.</note></section><para id="delete_me">
+     <!-- Insert module text here -->
+  </para>
+</content>
+
+</document>

@@ -1,0 +1,99 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>1.2. Oscilloscope: Read the Current Consumption</title>
+<metadata>
+  <md:content-id>m21581</md:content-id><md:title>1.2. Oscilloscope: Read the Current Consumption</md:title>
+  <md:abstract/>
+  <md:uuid>523436b5-2cd5-4992-a6e2-d8abe534f361</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-302">The End Device is instructed to transmit a message every second; its radio is off the remainder of the time. Using the oscilloscope together with the 1-Ohm  resistor, you will be able to visualize the current consumption of the board.</note>
+
+<list id="eip-115">
+
+<item>
+Leave the Access Point plugged into the computer.
+</item>
+
+<item>
+Switch the target board on using the jumper with the 1-Ohm resistor:
+<figure id="resistor_jumper">
+  <media id="resistor_jumper2" alt="">
+    <image mime-type="image/jpeg" src="../../media/resistor_jumper.jpg"/>
+  </media>
+  <caption>
+Use the 1-Ohm jumper to switch on the target board.
+  </caption>
+</figure>
+</item>
+
+<item>
+Connect the oscilloscope onto the resistor as in the following figure. What you read is the current consumption in amps of the board (U = RI, with R = 1).
+<figure id="osc_current">
+  <media id="osc_current2" alt="">
+    <image mime-type="image/jpeg" src="../../media/osc_current.jpg"/>
+  </media>
+  <caption>
+Read the current consumption of the board.
+  </caption>
+</figure>
+</item>
+
+<item>
+You should read energy consumptions close to the following Figure. There are fourmain phases: the radio is switched on (A), IDLE mode (B), RX mode (C) and TX mode (D).
+<figure id="monitor_osc_reading">
+  <media id="monitor_osc_reading2" alt="">
+    <image mime-type="image/jpeg" src="../../media/monitor_osc_reading.jpg"/>
+  </media>
+  <caption>
+You're done when you see a screen similar to this one on your oscilloscope.
+  </caption>
+</figure>
+</item>
+
+<item>
+We can assume the boards are powered by two AAA batteries with a capacity of 1000 mA*hr, under the hypothetical condition in which the batteries hold their voltage ideally until their capacity is exhausted. The following Table can be used to calculate the approximate lifetime, using the previous measurements: Average current consumption is 0.700mA; Lifetime with a 1000mA*hr battery is about 2 months.
+
+<table id="eip-155" summary="Duration and average current consumption of the different phases observed.">
+<tgroup cols="3"><tbody>
+  <row>
+    <entry>Phase</entry>
+    <entry>duration</entry>
+    <entry>av. current</entry>
+  </row>
+  <row>
+    <entry>sleep</entry>
+    <entry>995.34ms</entry>
+    <entry>0.600mA</entry>
+  </row>
+  <row>
+    <entry>radio is switched on</entry>
+    <entry>0.360ms</entry>
+    <entry>4.80mA</entry>
+  </row>
+  <row>
+    <entry>IDLE mode</entry>
+    <entry>0.780ms</entry>
+    <entry>13.6mA</entry>
+  </row>
+  <row>
+    <entry>RX mode</entry>
+    <entry>2.680ms</entry>
+    <entry>24.2mA</entry>
+  </row>
+  <row>
+    <entry>TX mode</entry>
+    <entry>0.840ms</entry>
+    <entry>26.0mA</entry>
+  </row>
+</tbody>
+
+</tgroup><caption>Duration and average current consumption of the different phases observed.</caption>
+</table>
+</item>
+</list>
+
+</content>
+
+</document>

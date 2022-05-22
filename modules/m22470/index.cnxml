@@ -1,0 +1,19 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>Source Code and Resources</title>
+<metadata>
+  <md:content-id>m22470</md:content-id><md:title>Source Code and Resources</md:title>
+  <md:abstract/>
+  <md:uuid>0e251f9b-0c58-4edf-9ff7-b93e27f81a58</md:uuid>
+</metadata>
+
+<content>
+  <section id="eip-959"><title>If you take this lab</title><para id="eip-202">When taking the labs contained in this collection, you will be asked to create project in IAR, import drivers and copy-paste source code from these web pages. As an alternative, and for your convenience, you can download the full source code used in this Lab in IAR format:</para><list id="eip-661"><item><link resource="watteyne_ezwsn_sourcecode.zip">Full IAR source code</link></item></list></section><section id="eip-48"><title>If you are an intructor</title><para id="eip-895">This tutorial has been given as a lab for undergraduate and graduate students, using the following documents. You are free to use these documents for instructional use, provided you mention the original authors name.
+</para><para id="eip-179">To increase the quality of the contents, we greatly appreciate feedback and comments.</para><list id="eip-775"><item>
+<link resource="watteyne_ezwsn_lab.pdf">Lab instructions</link> in pdf format. These contain the same information as this tutorial, but the students are asked to answer a few questions and to fill out the initially empty result tables.
+</item><item>
+<link resource="watteyne_ezwsn_exam.pdf">Exam questions</link> regarding this lab (multiple choice).
+</item></list></section>
+</content>
+
+</document>

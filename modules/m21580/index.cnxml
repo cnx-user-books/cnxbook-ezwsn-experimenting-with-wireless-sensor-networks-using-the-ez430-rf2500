@@ -1,0 +1,29 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>1.1. eZ430-RF2500 Sensor Monitor Demo</title>
+<metadata>
+  <md:content-id>m21580</md:content-id><md:title>1.1. eZ430-RF2500 Sensor Monitor Demo</md:title>
+  <md:abstract/>
+  <md:uuid>573541fa-3871-421a-9de7-f06b9aa7bed1</md:uuid>
+</metadata>
+
+<content>
+<note id="eip-584" type="note">The eZ430-RF2500 board comes with demo software, which
+creates a WSN in a star topology around the <emphasis>Access Point</emphasis>. A
+node which is not an access point is called an <emphasis>End Device</emphasis>. By
+running this demo, you will learn how to use the IAR tool.</note><section id="eip-762"><title>Running the Code</title><list id="eip-422"><item>Locate the folder containing the source code of the Sensor Monitor Demo, which was created when you followed the <link document="m21597">installation instructions</link> <footnote id="eip-id1164246900001">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>, in the <code>ti_demo</code> folder.</footnote>.</item>
+<item>Double-click on <code>eZ430-RF2500 Sensor Monitor Demo v1.02.eww</code>, this opens IAR.</item>
+<item>In the Workspace, select the <code>Overview tab</code>, right click on the <code>End Device</code> project and choose <code>Set as Active</code>.</item>
+<item>Plug in the USB programmer, and select <code>Project &gt; debug</code> <emphasis effect="italics">(Ctrl+D)</emphasis>. The source is compiled, downloaded onto the target board and a default breakpoint causes execution to stop at function <code>main()</code>. Stop the debug session by selecting <code>Debug &gt; Stop Debugging</code> <emphasis effect="italics">(Ctrl+Shift+D)</emphasis>;</item>
+<item>Disconnect the USB programmer and swap the target boards between the USB programmer and the battery unit.</item>
+<item>In Workspace, set the <code>Access Point</code> project as active. Repeat the programming process. You now have two programmed target boards; close IAR.</item></list></section><section id="eip-590"><title>Running the Demo</title><list id="eip-60"><item>Plug in the Access Point target board mounted on the USB programmer in the computer. Both LEDs start blinking.</item>
+<item>Launch <code>Start Menu &gt; ezwsn &gt; eZ430-RF2500 Sensor Monitor</code>, displaying the temperature of the Access Point.</item>
+<item>You see the temperature of the access point. Switch on your end Device, which appears on the screen</item></list><para id="eip-312"><figure id="cute-dog"><media id="sensor_monitor_screen" alt="">
+    <image mime-type="image/jpeg" src="../../media/sensor_monitor_screen.jpg"/>
+  </media>
+  
+<caption>You're one when you have a similar window on your screen.</caption></figure>
+</para></section>
+</content>
+
+</document>

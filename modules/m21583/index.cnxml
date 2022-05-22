@@ -1,0 +1,151 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+
+<title>2.1. Crash Course on the MSP430f2274</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m21583</md:content-id>
+  <md:title>2.1. Crash Course on the MSP430f2274</md:title>
+  <md:abstract/>
+  <md:uuid>62e319d8-7f32-4f5a-bc69-3bf18c676077</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-346">So far, you have played around with existing code and have
+had a high level view of the mote. It is now time to dig into
+the hardware and understand both what the mote board is composed
+of, and how you can program it. This section is purely
+theoretical (i.e. no exercises), but serves are a basis for the subsequent 
+sections in which you will have to write software for the board.</note><para id="delete_me">The heart of this platform is its <emphasis>MSP430 
+microcontroller</emphasis>, by Texas Instruments.
+There is a complete family of MSP430 micro-controllers, the variants of which
+are different in the amount of RAM/ROM and I/O capabilities, mainly. The one
+you will program is the MSP420f2274, featuring 32KB + 256B of Flash Memory
+(ROM) and 1KB of RAM.</para>
+<para id="eip-56">The MSP430 is a 16-bit RISC microcontroller. 16-bit means that 
+all registers hold
+16 bits; interconnection between the elements of the micro-controller is done 
+using
+16-bit buses. RISC – for Reduced Instruction Set Computer – refers to the fact 
+that
+there are (only) 27 core instructions.</para><section id="eip-516"> 
+<title>Operation of the MSP430</title><para id="eip-308">The following 
+figures shows the internal architecture of the MSP430. The CPU contains 16 
+<emphasis>registers</emphasis>;
+its operation goes as follows. A system clock ticks at a programmable rate
+(e.g. 1MHz), so each μs an instruction is fetched from memory (ROM), copied into
+the right register and executed. An example execution can be adding two 
+registers
+and copying the result to a third. In practice, these low-level details are 
+taken care
+of by the compiler, which translates C into assembler language and binary code. 
+In
+this tutorial, we only work with the higher-level C.
+<figure id="msp430_architecture">
+  <media id="msp430_architecture2" alt="msp430_architecture">
+    <image mime-type="image/jpeg" src="../../media/msp430_architecture.jpg"/>
+  </media>
+  <caption>
+The internal architecture of the MSP430.
+  </caption>
+</figure>
+
+</para></section><section id="eip-122"><title>Programming the 
+MSP430</title><para id="eip-259">
+When you program a mote, you program its microcontroller, i.e. you put the 
+compiled
+binary code at the right location in the MSP430's ROM memory. When the
+board is switched on, the MSP430 starts by fetching the first instruction at a 
+predetermined
+location in ROM; this is where the programming tool puts your compiled
+code.
+</para><para id="eip-597">To configure other components (e.g. to set the 
+transmission power of the radio), you
+need to program the MSP430 in such a way that it configures the radio at the 
+beginning
+of your program.</para></section><section id="eip-741"> 
+<title>Interrupts</title><para id="eip-569">
+A program for a wireless mote is in practice a sequence of very small pieces of
+codes executed when some event happens: e.g. when the button is pressed, turn on
+the red LED. When an event happens in an electronic element outside the MSP430
+(e.g. the button is pressed), this element informs the MSP430 by changing the 
+electric
+state of the wire which connects this element to the MSP430. This wire is
+connected to one of the ports of the MSP430 (e.g. port <code>P1.2</code> in the 
+case of the button
+on the eZ430-RF2500). You need to program the MSP430 in such a way that
+changing the status on port P1.2 generates an interrupt. When an interrupt is 
+generated,
+theMSP430 stops its current execution (if any), and starts executing a specific
+function called the Interrupt Service Routine (<emphasis>ISR</emphasis>) 
+associated to that particular interrupt.
+Once this function is finished (normally an ISR is a very small function), it
+resumes its normal execution (if any).
+</para><para id="eip-517">You will write ISRs in to response when pushing the 
+button (<link document="m21588">3.3</link>), timer interrupts
+(<link document="m21589">3.4</link>) and when receiving a packet at the radio 
+(<link document="m21594">4.2</link>).</para></section><section id="eip-5"> 
+<title>Timers</title><para id="eip-674">
+When writing code, you may want to wait some time before doing something
+(e.g. when I receive a packet, wait 10ms, and send a reply packet). This can be
+done using a timer, a specific component of the MSP430. Physically, a timer is a 
+16-bit register which is incremented at each clock cycle, i.e. once every μs 
+with a
+1MHz clock. It starts at 0, and counts up until a programmable value, upon which
+is generates a timer interrupt, reset to 0, and starts counting up again.
+</para><para id="eip-550">You will use timer in section to have a LED flash at a 
+given rate (<link document="m21589">3.4</link>).</para></section><section id="eip-46"><title>I/O Functionalities</title><para id="eip-323">
+The MSP430 has 40 pins:
+<list id="eip-970"><item>4 have analog functions to power the board;</item>
+<item>2 are used for testing at the factory;</item>
+<item>2 are used if an external crystal is used as clock source, which is not 
+the case on
+the eZ430-RF2500 platform;</item>
+<item>32 have digital functions.</item></list></para><para id="eip-780">The 32 
+digital pins are grouped into 4 ports of 8 pins each. Each pin has a name in
+the form <code>Px.y</code>, <code>y</code> represents the position of the pins 
+within port <code>x</code>. All pins can be
+generic I/O pins, a number of 8-bit registers are used to configure them:<list id="eip-634"><item><code>PxDIR.y</code> sets the direction of port 
+<code>PxDIR.y</code>; output if <code>PxDIR.y=1</code>, input if 
+<code>PxDIR.y=0</code>;</item>
+<item><code>PxOUT.y</code> sets the state of port <code>Px.y</code> when set as 
+output;</item>
+<item><code>PxIN.y</code> reads the state of port <code>Px.y</code> when set as 
+input;</item>
+<item><code>PxIE.y</code> enables interrupts on that 
+port;</item></list></para><para id="eip-937">Each of these registers hold 8 
+bits, one for each pin. As a result, <code>P1DIR=0b11110000</code><footnote id="fs-id1167108565170"><code>0bx</code> means that <code>x</code> is written in 
+binary; <code>0xx</code> means that <code>x</code> is written in hexadecimal. We
+thus have <code>0x1A=0b00011010</code>. Use Windows Calculator in Scientific 
+mode for quick conversions.</footnote>
+means that pins <code>P1.0</code> through <code>P1.3</code> are input, while 
+<code>P1.4</code> through <code>P1.7</code> are outputs.
+To set/reset a specific pin, you need to use the binary operators presented in 
+the following code:</para><code id="eip-637" display="block">Assuming A = 
+0b01101001, we have:
+~A = 0b10010110
+A |= 0b00000010: A=0b01101011
+A &amp;= ~0b00001000: A=0b01100001
+A ^= 0b10001000: A=0b11100001
+A &lt;&lt; 2: A=0b10100100
+A &gt;&gt; 2: A=0b00011010<caption>Binary operators used to set/reset individual 
+bits.</caption></code><para id="eip-662">Note that most of the 32 digital pins 
+can also be used for specific functions (SPI
+interface, input for Analog-to-Digital conversion, ...), see the <link url="http://focus.ti.com/lit/ds/symlink/msp430f2274.pdf" window="new">MSP430x22x2, MSP430x22x4 Mixed Signal Microcontroller</link> 
+datasheet for details.</para></section><section id="eip-250"><title>Low-Power 
+Operation</title><para id="eip-462">As the MSP430 spends its time waiting for 
+interrupts, it is important to reduce its
+energy consumption during idle periods by shutting down the clocks you are not
+using. The more clocks you shut down, the less energy you use, but make sure you
+leave on the clocks you need. There are four low power modes (LPM1, ..., LPM4)
+which shut down different clocks (details in the <link url="http://focus.ti.com/lit/ug/slau144e/slau144e.pdf" window="new">MSP430x2xx 
+Family User's Guide</link>).
+</para><para id="eip-581">In practice, you only need to leave on the auxiliary 
+clock which clocks a timer to
+wake the MSP430 after some time. This is achieved by entering low-power mode
+3, by adding this line at the end of your main function:</para><code id="eip-38" display="block">__bis_SR_register(LPM3_bits);</code></section><note id="eip-833" type="tip">You now know enough about the MSP430 for this tutorial, but if you 
+want to
+work with the MSP430, you are strongly advised to read the <link url="http://focus.ti.com/lit/ug/slau144e/slau144e.pdf" window="new">MSP430x2xx 
+Family User's Guide</link> and the <link url="http://focus.ti.com/lit/ds/symlink/msp430f2274.pdf" window="new">MSP430x22x2, MSP430x22x4 Mixed Signal Microcontroller</link> 
+datasheet (in that order).</note>
+</content>
+
+</document>

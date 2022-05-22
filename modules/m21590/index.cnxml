@@ -1,0 +1,35 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>4.1. Using the Texas Instruments Drivers</title>
+<metadata>
+  <md:content-id>m21590</md:content-id><md:title>4.1. Using the Texas Instruments Drivers</md:title>
+  <md:abstract/>
+  <md:uuid>b1230b5a-3854-4f76-82e4-6f44eae8f51c</md:uuid>
+</metadata>
+
+<content>
+  <para id="eip-493">Texas Instruments has developed a set of drivers for the eZ430-RF2500 as part of the simpliciTI project, freely available <link url="http://focus.ti.com/docs/toolsw/folders/print/simpliciti.html" window="new">online</link>.  You will use them without
+changing the files.</para><para id="eip-431">If you want to create your own project, you need to take the following steps to include the drivers:</para><list id="eip-397"><item>In IAR, create a new project as instructed in <link document="m21586">Section 3.1</link>.</item>
+<item>Go to <code>Project &gt; Options</code> <emphasis effect="italics">(Alt+F7)</emphasis>, then to C/C++ compiler. In the
+<code>Preprocessor</code> tab, add the following lines in the <code>Additional include directories</code>
+text field. This tells IAR to look into these folders when you include files in your
+source code.<code id="eip-109" display="block">$PROJ_DIR$\..\drivers\bsp
+$PROJ_DIR$\..\drivers\bsp\drivers
+$PROJ_DIR$\..\drivers\bsp\boards\EZ430RF
+$PROJ_DIR$\..\drivers\mrfi</code></item>
+<item>In the <code>defined symbols</code> text field, add the following line. This tells the drivers
+you have a CC2500 radio chip on your board.
+<code id="fs-id1164798282539" display="block">MRFI_CC2500</code>
+</item>
+<item>in the Workspace panel, right click on the name of your project, and use <code>Add, Add Group...</code> to make the following group structure (where groups <code>bsp</code> and <code>mrfi</code> are inside group <code>Components</code>):<code id="fs-id1165462760420" display="block">
+Application
+Components
+- bsp
+- mrfi
+Output
+</code></item>
+<item>use <code>Add, Add Files...</code> to add files <code>bsp.c</code>, <code>bsp.h</code> and <code>bsp_macros.h</code> under group <code>bsp</code>. Similarly, add files <code>mrfi.c</code>, <code>mrfi.h</code> and <code>mrfi_defs.h</code>
+under group <code>mrfi</code>. Add your C code as a file under group <code>Application</code>.</item>
+</list><para id="eip-121">For your convenience, you can download the entire <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link> for the labs in this collection, organized in IAR projects. Open <code>source_code/iar_v4.11.lab_ezwsn.eww</code> and browse through the different projects in the <code>Workspace</code> panel on the left.</para>
+</content>
+</document>

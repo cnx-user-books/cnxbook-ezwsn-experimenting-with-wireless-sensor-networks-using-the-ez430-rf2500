@@ -1,0 +1,94 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>3.3. Button-Driven Toggle Through Interrupts</title>
+<metadata>
+  <md:content-id>m21588</md:content-id><md:title>3.3. Button-Driven Toggle Through Interrupts</md:title>
+  <md:abstract/>
+  <md:uuid>fc4f3767-0b29-496b-bb20-ba39aa813f69</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-169">The goal of this section is to start using interrupts through the
+button on the board. You will program the board so that the
+LEDs change state when the button is pressed. You will also
+measure the energy consumed when the board sits idle, and
+when it enters a low-power mode.</note><section id="eip-72"><title>Running the Code</title><para id="eip-42">
+<list id="eip-id1165684044642"><item>Copy the code presented in the following listing <footnote id="eip-id1167677880888">Alternatively, this code is available in the downloadable <link url="http://cnx.org/content/m22470/latest/watteyne_ezwsn_sourcecode.zip">source code</link>. Open <code>source_code/iar_v4.11/lab_ezwsn.eww</code> with IAR. The project corresponding to this section is called <code>led_button</code>.</footnote>.</item>
+<item>Compile and download the code onto the board <emphasis effect="italics">(Ctrl+D)</emphasis>.</item>
+<item>Let the code execute <emphasis effect="italics">(F5)</emphasis>, press the button on the board, the LEDs' state should
+change.</item>
+</list>
+</para><code id="eip-688" display="block">#include "io430.h"
+#include "in430.h"
+int main( void )
+{
+  WDTCTL = WDTPW + WDTHOLD;
+  P1DIR |=  0x03;
+  P1DIR &amp;= ~0x04;
+  P1REN |= 0x04;
+  P1IE |= 0x04;
+  __bis_SR_register(GIE);
+  while(1);
+}
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1 (void)
+{
+  P1IFG &amp;= ~0x04;
+  P1OUT ^= 0x03;
+}<caption>Toggle LEDs state using the button</caption></code><para id="eip-829">Some keys for understanding the code:
+<list id="eip-id1169450726645">
+<item>
+<emphasis>Lines 6 and 7</emphasis> declare <code>P1.0</code> and <code>P1.1</code> as outputs (for the LEDs), and <code>P1.2</code> as input
+(for the button);
+</item><item>
+<emphasis>Line 8</emphasis> activates an internal resistor on <code>P1.2</code>. This is needed for a button for the
+signal to be cleaner when the button is pressed; i.e. otherwise, the <code>P1.2</code> constantly
+floats between high and low state. This is only needed for buttons.
+</item><item>
+<emphasis>Line 9</emphasis> enables interrupts on <code>P1.2</code>.
+</item><item><emphasis>Line 10</emphasis> enables interrupts globally.
+</item><item><emphasis>Line 13 and 14</emphasis> declare that this function should be called when an interrupt of
+type <code>PORT1_VECTOR</code> happens; the name <code>Port_1</code> chosen has no importance.
+</item><item><emphasis>Line 16</emphasis> resets the interrupt flag generated (mandatory otherwise the function
+will be called again right after it finishes execution).
+</item>
+</list></para></section><section id="eip-473"><title>Low-Power Modes</title><para id="eip-498">
+As such, the board sits idle while waiting for an interrupt to happen with the
+MSP430 on (which continuously executed line 11). After measuring this current,you will change the code so as to enter low-power mode instead of sitting idle.
+<list id="eip-id19120641"><item>
+Using the battery unit, the resistor jumper and the oscilloscope, measure the current
+consumed in this mode (make sure that the LEDs are off when you measure).
+</item><item>Change line 10 by <code>__bis_SR_register(GIE+LPM0_bits);</code>. This instructs
+the MSP430 to enable the interrupts globally, and to enter LPM0 mode
+immediately. Only an interrupt can wake the MSP430.
+</item><item>Remove line 11 which can never be reached.
+</item><item>Measure the current now, make sure that LEDs are again off.
+</item><item>repeat with LPM3 and LPM4.
+</item>
+</list>
+</para><para id="eip-188">You should obtain results close to:</para><table id="eip-483" summary="Current consumed by the LPM modes">
+<tgroup cols="2"><tbody>
+  <row>
+    <entry>Active mode <emphasis effect="italics">(active: CPU and all clock)</emphasis></entry>
+    <entry>3.28mA</entry>
+  </row>
+  <row>
+    <entry>LPM0 mode <emphasis effect="italics">(active: SMCLK, ACLK; disabled: CPU, MCLK)</emphasis></entry>
+    <entry>2.88mA</entry>
+  </row>
+  <row>
+    <entry>LPM3 mode <emphasis effect="italics">(active: ACLK; disabled: CPU, MCLK, SMCLK)</emphasis></entry>
+    <entry>2.72mA</entry>
+  </row>
+  <row>
+    <entry>LPM4 mode <emphasis effect="italics">(disabled: CPU and all clock)</emphasis></entry>
+    <entry>2.72mA</entry>
+  </row>
+</tbody>
+
+</tgroup><caption>Current consumed by the LPM modes</caption>
+</table><para id="eip-658">Note that, because we are not using any clock in this example, we should use LPM4
+as it is the most energy-efficient.</para></section>
+</content>
+
+</document>

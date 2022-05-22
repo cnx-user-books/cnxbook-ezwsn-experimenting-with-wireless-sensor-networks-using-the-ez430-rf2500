@@ -1,0 +1,43 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>6.1. An Introduction to Preamble Sampling</title>
+<metadata>
+  <md:content-id>m21602</md:content-id><md:title>6.1. An Introduction to Preamble Sampling</md:title>
+  <md:abstract/>
+  <md:uuid>8df7a7ae-eb38-41a8-8882-d8a32cc1deb0</md:uuid>
+</metadata>
+
+<content>
+  <note id="eip-187">Preamble-sampling is a technique used to reduce the energy
+consumption of the MAC protocol in a wireless node. The
+goal of this section is to measure the energy consumption of the
+transmitting and receiving nodes, and to predict the lifetime of a node when powered on two AAA/LR03 batteries.</note><para id="delete_me">Nodes using preamble-sampling are not synchronized. Instead, nodes periodically
+listen for a very short time (called Clear-Channel-Assessment, or <emphasis>CCA</emphasis>) to decide
+whether a transmission is ongoing. We call check interval (<emphasis>CI</emphasis>) the amount of time
+a node waits between two successive CCAs. The sender needs to make sure the
+receiver node is awake before sending data; it prepends a (long) preamble to its
+data. By having the preamble at least as long as the wake-up period, the sender is
+certain that the receiver will hear it and be awake for receiving the data.</para><para id="eip-188">The figure below is a chronograph depicting the radio state of node S and its three neighbors
+<code>A</code>, <code>B</code> and <code>C</code>. A box above/under a vertical line means the node's radio is transmitting/
+receiving, respectively. No box means the radio is off. All nodes sample the
+channel for Dcca seconds every CI seconds.
+<figure id="ps">
+  <media id="ps2" alt="ps">
+    <image mime-type="image/jpeg" src="../../media/ps.jpg"/>
+  </media>
+  <caption>
+Basic preamble-sampling.
+  </caption>
+</figure></para><para id="eip-336">In this Section, you will implement a simplified version of preamble sampling:
+
+<list id="eip-id6993511"><item>
+there is no data;
+</item><item>
+the preamble is cut into a series of micro-frames. Each micro-frame contains a
+counter indicating how many micro-frames still remain. A micro-frame is sent
+every <code>Tmf</code> seconds, and lasts for <code>Dmf</code>.
+</item>
+</list></para>
+</content>
+
+</document>

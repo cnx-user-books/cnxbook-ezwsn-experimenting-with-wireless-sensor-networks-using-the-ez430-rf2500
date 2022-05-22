@@ -1,0 +1,28 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+
+<title>2.2. Crash Course on the CC2500</title>
+<metadata>
+  <md:content-id>m21584</md:content-id><md:title>2.2. Crash Course on the CC2500</md:title>
+  <md:abstract/>
+  <md:uuid>ae2fc73f-6af0-43e4-9407-db135557198e</md:uuid>
+</metadata>
+
+<content>
+  <para id="delete_me">The CC2500 is the <emphasis>radio chip</emphasis> on the eZ430-RF2500. It functions in the <emphasis>2400-
+2483.5 MHz</emphasis> frequency band and provides an excellent option for WSN applications
+because of its low-power characteristics. This chip has 20 pins:<list id="eip-909"><item>2 for connecting a (mandatory) 26MHz external crystal oscillator;</item>
+<item>2 for connecting the antenna;</item>
+<item>10 for powering the chip;</item>
+<item>6 for digital communication with the MSP430 (to be detailed in section 3.3)</item></list></para><para id="eip-678">The chip contains <emphasis>47 registers</emphasis> to configure operating frequency,modulation scheme,
+baud rate, transmission power, etc. Because these registers are erased during power
+down, the MSP430 should configure all of them at startup. 13 commands allow the
+MSP430 to control the state of the CC2500 (transmit, power down, receive, . . . ).
+The CC2500 follows a state diagram, as detailed in the <link url="http://focus.ti.com/lit/ds/symlink/cc2500.pdf" window="new">CC2500, Low-Cost Low-Power 2.4 GHz RF Transceiver</link> datasheet.</para><para id="eip-651">In practice, Texas Instruments provides some code which hides the low-level details
+of the CC2500 behind a higher level API. These <emphasis>drivers</emphasis> are part of the <cite url="http://focus.ti.com/docs/toolsw/folders/print/simpliciti.html">SimpliciTI
+project</cite>, available for free. We will use these off-the-shelf drivers
+in this tutorial.</para><note id="eip-899" type="tip">You now know enough about the CC2500 for this tutorial, but if you want to
+work with the CC2500, you are strongly advised to read the <link url="http://focus.ti.com/lit/ds/symlink/cc2500.pdf" window="new">CC2500, Low-Cost Low-Power 2.4 GHz RF Transceiver</link> datasheet (after having read
+the documents about the MSP430).</note>
+</content>
+
+</document>
